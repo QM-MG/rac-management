@@ -71,7 +71,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="产品线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="lineDisabled">
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -79,6 +79,17 @@
                                 :value="item.id">
                                 </el-option>
                             </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="功能">
+                            <el-tree
+                                :props="props"
+                                :load="loadNode"
+                                lazy
+                                ref="tree"
+                                @node-click="nodeCheck">
+                            </el-tree>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -111,7 +122,12 @@ export default {
             totalCount: 0,
             pageNo: 1,
             pageSize: 20,
-            titleDialog: '新增功能'
+            titleDialog: '新增功能',
+            props: {
+                label: 'cnName',
+                children: 'children'
+            },
+            lineDisabled: false
         };
     },
     components: {pagination},
@@ -136,24 +152,6 @@ export default {
             }
             
         },
-        async findFuncTree() {
-            let param = {
-                bizLineId: this.param.bizLineId,
-                parentId: -1
-            }
-            try {
-                let res = await findFuncTree(param);
-                let data = res.data || {};
-                console.log(data)
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '查询失败！',
-                    type: 'error'
-                })
-            }
-            
-        },
         async searchbizLineList() {
             try {
                 let res = await searchBizLine();
@@ -161,7 +159,6 @@ export default {
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
                     this.search();
-                    this.findFuncTree();
                 }
             }
             catch (e) {
@@ -242,6 +239,44 @@ export default {
                 })
             }
         },
+        async findFuncTree(parentId) {
+            let param = {
+                bizLineId: this.param.bizLineId,
+                parentId
+            }
+            try {
+                let res = await findFuncTree(param);
+                let treeList = res.data || [];
+                return treeList
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 功能树
+        async loadNode(node, resolve) {
+            if (node.level === 0) {
+                let list = await this.findFuncTree(-1);
+                return resolve(list);
+            }
+            else{
+                let list = await this.findFuncTree(node.id);
+                return resolve(list);
+            }
+        },
+        nodeCheck(node) {
+            this.addParam.parentId = node.id;
+            if (node.parentId !== -1) {
+                this.addParam.bizLineId = '';
+                this.lineDisabled = true;
+            }
+            else {
+                this.lineDisabled = false;
+            }
+        },
         reset() {
             this.pageSize = 20;
             this.pageNo = 1;
@@ -255,7 +290,6 @@ export default {
         },
         handleCurrentChange(val) {
             this.pageNo = val;
-
         }
     }
 };

@@ -18,7 +18,7 @@ import top from '@/components/top.vue';
 export default {
     data() {
         return {
-			toggleMenuShow: true
+			toggleMenuShow: false
 		};
 	},
 	components: {

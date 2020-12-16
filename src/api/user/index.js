@@ -13,3 +13,7 @@ export function edit(param) {
 export function del(param) {
     return axiosIns.post(url.USER_DEL, param); 
 }
+// 用户绑定角色
+export function userToRole(param) {
+    return axiosIns.post(url.USER_TO_ROLE, param); 
+}

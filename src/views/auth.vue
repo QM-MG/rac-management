@@ -14,10 +14,12 @@
             <el-button type="warning" @click="reset" size="mini">重置</el-button>
             <el-button type="success" class="auth-add" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
-        <el-row>
-            <el-col :span="12">
+        <el-row class="content-wrap">
+            <el-col :span="14">
                 <el-table
                     :data="tableData"
+                    highlight-current-row
+                    @current-change="handleRowChange"
                     style="width: 100%">
                     <el-table-column
                         prop="enName"
@@ -53,9 +55,14 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="8"  :offset="2">
+                <el-button type="primary" @click="save" size="mini" class="save-btn">保存</el-button>
                 <el-tree
+                    class="tree-wrap"
+                    v-if="param.bizLineId"
                     :props="props"
+                    node-key="id"
+                    ref="tree"
                     :load="loadNode"
                     lazy
                     show-checkbox>
@@ -106,7 +113,8 @@
 </template>
 <script>
 import pagination from '@/components/pagination';
-import {searchAuthList,edit,del,add} from '@/api/auth/index';
+import {searchAuthList,edit,del,add,save,roleToFunc} from '@/api/auth/index';
+import {findFuncTree} from '@/api/func/index';
 import {searchBizLine} from '@/api/bizline/index';
 export default {
     data() {
@@ -116,6 +124,10 @@ export default {
                 searchVal: '',
                 bizLineId: ''
             },
+            props: {
+                label: 'cnName',
+                children: 'children'
+            },
             status: 'add',
             addParam: {
             },
@@ -124,7 +136,8 @@ export default {
             totalCount: 0,
             pageNo: 1,
             pageSize: 20,
-            titleDialog: '新增角色'
+            titleDialog: '新增角色',
+            saveParam: {}
         };
     },
     components: {pagination},
@@ -163,6 +176,34 @@ export default {
                     message: e || '查询失败！',
                     type: 'error'
                 })
+            }
+        },
+        async findFuncTree(parentId) {
+            let param = {
+                bizLineId: this.param.bizLineId,
+                parentId
+            }
+            try {
+                let res = await findFuncTree(param);
+                let treeList = res.data || [];
+                return treeList
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 功能树
+        async loadNode(node, resolve) {
+            if (node.level === 0) {
+                let list = await this.findFuncTree(-1);
+                return resolve(list);
+            }
+            else{
+                let list = await this.findFuncTree(node.id);
+                return resolve(list);
             }
         },
         showDialog(status, row) {
@@ -234,6 +275,47 @@ export default {
                 })
             }
         },
+        handleRowChange(row) {
+            this.saveParam.roleId = row.id;
+            this.findRoleToFunc();
+        },
+        // 查询角色已绑定的功能
+        async findRoleToFunc() {
+            try {
+                let res = await roleToFunc(this.saveParam);
+                let data = res.data || [];
+                this.$refs.tree.setCheckedKeys(data);
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        async save() {
+            if (!this.saveParam.roleId) {
+                this.$message({
+                    message: '请选择角色！',
+                    type: 'warning'
+                })
+                return;
+            }
+            this.saveParam.funcIds = this.$refs.tree.getCheckedKeys();
+            try {
+                let res = await save(this.saveParam);
+                this.$message({
+                    message: '保存成功！',
+                    type: 'success'
+                })
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '保存失败！',
+                    type: 'error'
+                })
+            }
+        },
         reset() {
             this.pageSize = 20;
             this.pageNo = 1;
@@ -248,9 +330,6 @@ export default {
         handleCurrentChange(val) {
             this.pageNo = val;
         },
-        loadNode(node, resolve) {
-
-        }
     }
 };
 </script>
@@ -265,6 +344,16 @@ export default {
     }
     .auth-add {
         float: right;
+    }
+    .content-wrap {
+        margin-top: 20px;
+        .save-btn {
+            margin-bottom: 20px;
+            float:right;
+        }
+        .tree-wrap{
+            clear: both;
+        }
     }
 }
 .add-dialog {
