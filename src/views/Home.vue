@@ -1,18 +1,59 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+	<div class="wrap">
+		<div class="aside left" :style="{width:toggleMenuShow? '64px': '250px'}">
+			<left-menu :toggleMenuShow="toggleMenuShow"></left-menu>
+		</div>
+		<div class="aside main" :style="{marginLeft:toggleMenuShow?'64px': '250px'}"> 
+			<top @toggleMenu="toggleMenu"></top>
+			<div class="main-container">
+				<router-view></router-view>
+			</div>
+		</div>
+	</div>
 </template>
-
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import leftMenu from '@/components/leftMenu.vue';
+import top from '@/components/top.vue';
 
 export default {
-  name: 'home',
-  components: {
-    HelloWorld
-  }
-}
+    data() {
+        return {
+			toggleMenuShow: true
+		};
+	},
+	components: {
+		leftMenu,
+		top
+	},
+    mounted() {
+    },
+    methods: {
+		toggleMenu() {
+			this.toggleMenuShow = !this.toggleMenuShow;
+			console.log(this.toggleMenuShow)
+		}
+	}
+};
 </script>
+</script>
+<style lang="less">
+.wrap {
+	height: 100%;
+	.aside.left{
+		height: 100%;
+    	background-color: #304156;
+		position:absolute;
+		top:0px;
+		left:0px;
+		transition: widcth .28s;
+		z-index: 1001;
+	}
+	.aside.main{
+		-webkit-transition: margin-left .28s;
+		transition: margin-left .28s;
+		.main-container {
+			padding: 10px;
+		}
+	}
+}
+</style>
