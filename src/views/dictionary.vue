@@ -1,10 +1,18 @@
 <template>
-    <div class="bizline">
-        <div class="bizline-search">
+    <div class="dictionary">
+        <div class="dictionary-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini">
+                <el-option
+                v-for="item in bizLineList"
+                :key="item.id"
+                :label="item.cnName"
+                :value="item.id">
+                </el-option>
+            </el-select>
             <el-button type="success" @click="search" size="mini">搜索</el-button>
             <el-button type="warning" @click="reset" size="mini">重置</el-button>
-            <el-button type="success" class="bizline-add" @click="showDialog('add')" size="mini">新增</el-button>
+            <el-button type="success" class="dictionary-add" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
          <el-table
             :data="tableData"
@@ -18,10 +26,6 @@
                 prop="cnName"
                 label="中文"
                 width="180">
-            </el-table-column>
-            <el-table-column
-                prop="remark"
-                label="备注">
             </el-table-column>
             <el-table-column
                 prop="createTime"
@@ -59,7 +63,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
-                            <el-input v-model="addParam.enName" size="mini"></el-input>
+                            <el-input v-model="addParam.enName" size="mini" :disabled="status=='edit'"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -70,8 +74,15 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="备注">
-                            <el-input v-model="addParam.remark" size="mini"></el-input>
+                        <el-form-item label="产品线">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                                <el-option
+                                v-for="item in bizLineList"
+                                :key="item.id"
+                                :label="item.cnName"
+                                :value="item.id">
+                                </el-option>
+                            </el-select>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -85,16 +96,18 @@
 </template>
 <script>
 import pagination from '@/components/pagination';
-import {searchData,edit,del,add} from '@/api/bizline/index';
+import {searchData,edit,del,add} from '@/api/dictionary/index';
+import {searchBizLine} from '@/api/bizline/index';
 
 export default {
     data() {
         return {
             tableData: [],
-            titleDialog: '新增业务线',
             param: {
                 searchVal: ''
             },
+            titleDialog: '新增字典',
+            bizLineList: [],
             addParam: {},
             dialogVisible: false,
             totalCount: 0,
@@ -103,7 +116,7 @@ export default {
         };
     },
     mounted() {
-        this.search();
+        this.searchbizLineList();
     },
     components: {pagination},
     methods: {
@@ -123,16 +136,35 @@ export default {
                 })
             }
         },
+        async searchbizLineList() {
+            try {
+                let res = await searchBizLine();
+                this.bizLineList = res.data || [];
+                if (this.bizLineList.length > 0) {
+                    this.param.bizLineId = this.bizLineList[0].id;
+                    this.search();
+                }
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
         showDialog(status, row) {
             if (status === 'add') {
                 this.status = 'add';
-                this.titleDialog = '新增业务线';
+                this.titleDialog = '新增字典';
                 this.addParam = {};
+                if (this.bizLineList.length > 0) {
+                    this.addParam.bizLineId = this.bizLineList[0].id;
+                }
             }
             else {
                 this.status = 'edit';
-                this.titleDialog = '编辑业务线';
                 this.addParam = row;
+                this.titleDialog = '编辑字典';
             }
             this.dialogVisible = true;
         },
@@ -191,6 +223,9 @@ export default {
         },
         reset() {
             this.param = {};
+            if (this.bizLineList.length > 0) {
+                this.param.bizLineId = this.bizLineList[0].id;
+            }
             this.pageSize = 20;
             this.pageNo = 1;
             this.search();
@@ -210,14 +245,14 @@ export default {
 </script>
 
 <style lang="less">
-.bizline {
-    .bizline-search {
+.dictionary {
+    .dictionary-search {
         .el-input {
             width: 180px;
             margin-right: 10px;
         }
     }
-    .bizline-add {
+    .dictionary-add {
         float: right;
     }
 }

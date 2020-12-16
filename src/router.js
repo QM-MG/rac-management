@@ -6,8 +6,10 @@ import bizline from './views/bizline.vue'
 import user from './views/user.vue'
 import auth from './views/auth.vue'
 import manage from './views/manage.vue'
-import page5 from './views/page5.vue'
-
+import dictionary from './views/dictionary.vue'
+import property from './views/property.vue'
+import bizentity from './views/bizentity.vue'
+import dimension from './views/dimension.vue'
 
 Vue.use(Router)
 
@@ -43,9 +45,24 @@ export default new Router({
           component: manage
         },
         {
-          path: '/page5',
-          name: 'page5',
-          component: page5
+          path: '/dictionary',
+          name: 'dictionary',
+          component: dictionary
+        },
+        {
+          path: '/property',
+          name: 'property',
+          component: property
+        },
+        {
+          path: '/bizentity',
+          name: 'bizentity',
+          component: bizentity
+        },
+        {
+          path: '/dimension',
+          name: 'dimension',
+          component: dimension
         },
       ]
     },

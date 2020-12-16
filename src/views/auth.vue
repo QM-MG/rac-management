@@ -56,7 +56,10 @@
                 </pagination>
             </el-col>
             <el-col :span="8"  :offset="2">
-                <el-button type="primary" @click="save" size="mini" class="save-btn">保存</el-button>
+                <div class="tree-title">
+                    <p>功能列表</p>
+                    <el-button type="primary" @click="saveBind" size="mini" class="save-btn">保存</el-button>
+                </div>
                 <el-tree
                     class="tree-wrap"
                     v-if="param.bizLineId"
@@ -91,7 +94,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="产品线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -113,7 +116,7 @@
 </template>
 <script>
 import pagination from '@/components/pagination';
-import {searchAuthList,edit,del,add,save,roleToFunc} from '@/api/auth/index';
+import {searchAuthList,edit,del,add,saveBind,roleToFunc} from '@/api/auth/index';
 import {findFuncTree} from '@/api/func/index';
 import {searchBizLine} from '@/api/bizline/index';
 export default {
@@ -211,14 +214,14 @@ export default {
                 this.status = 'add';
                 this.titleDialog = '新增角色';
                 this.addParam = {};
+                if (this.bizLineList.length > 0) {
+                    this.addParam.bizLineId = this.bizLineList[0].id;
+                }
             }
             else {
                 this.status = 'edit';
                 this.titleDialog = '编辑角色';
                 this.addParam = row;
-                if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.bizLineList[0].id;
-                }
             }
             this.dialogVisible = true;
         },
@@ -293,7 +296,7 @@ export default {
                 })
             }
         },
-        async save() {
+        async saveBind() {
             if (!this.saveParam.roleId) {
                 this.$message({
                     message: '请选择角色！',
@@ -303,7 +306,7 @@ export default {
             }
             this.saveParam.funcIds = this.$refs.tree.getCheckedKeys();
             try {
-                let res = await save(this.saveParam);
+                let res = await saveBind(this.saveParam);
                 this.$message({
                     message: '保存成功！',
                     type: 'success'
@@ -317,6 +320,10 @@ export default {
             }
         },
         reset() {
+            this.param = {};
+            if (this.bizLineList.length > 0) {
+                this.param.bizLineId = this.bizLineList[0].id;
+            }
             this.pageSize = 20;
             this.pageNo = 1;
             this.search();
@@ -347,9 +354,14 @@ export default {
     }
     .content-wrap {
         margin-top: 20px;
-        .save-btn {
-            margin-bottom: 20px;
-            float:right;
+        .tree-title {
+            p {
+                float: left;
+                line-height: 36px;
+            }
+            .save-btn {
+                float: right;
+            }
         }
         .tree-wrap{
             clear: both;

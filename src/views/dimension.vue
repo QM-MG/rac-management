@@ -1,10 +1,18 @@
 <template>
-    <div class="bizline">
-        <div class="bizline-search">
+    <div class="dimension">
+        <div class="dimension-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini">
+                <el-option
+                v-for="item in bizLineList"
+                :key="item.id"
+                :label="item.cnName"
+                :value="item.id">
+                </el-option>
+            </el-select>
             <el-button type="success" @click="search" size="mini">搜索</el-button>
             <el-button type="warning" @click="reset" size="mini">重置</el-button>
-            <el-button type="success" class="bizline-add" @click="showDialog('add')" size="mini">新增</el-button>
+            <el-button type="success" class="dimension-add" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
          <el-table
             :data="tableData"
@@ -18,10 +26,6 @@
                 prop="cnName"
                 label="中文"
                 width="180">
-            </el-table-column>
-            <el-table-column
-                prop="remark"
-                label="备注">
             </el-table-column>
             <el-table-column
                 prop="createTime"
@@ -55,11 +59,11 @@
             :visible.sync="dialogVisible"
             custom-class="add-dialog"
             width="60%">
-            <el-form ref="form" :model="addParam" label-width="80px">
+            <el-form ref="form" :model="addParam" label-width="100px">
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
-                            <el-input v-model="addParam.enName" size="mini"></el-input>
+                            <el-input v-model="addParam.enName" size="mini" :disabled="status=='edit'"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -70,8 +74,27 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="备注">
-                            <el-input v-model="addParam.remark" size="mini"></el-input>
+                        <el-form-item label="产品线">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                                <el-option
+                                v-for="item in bizLineList"
+                                :key="item.id"
+                                :label="item.cnName"
+                                :value="item.id">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="维度节点类型">
+                            <el-select v-model="addParam.nodeTypeId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                                <el-option
+                                v-for="item in dictionaryList"
+                                :key="item.id"
+                                :label="item.cnName"
+                                :value="item.id">
+                                </el-option>
+                            </el-select>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -85,25 +108,29 @@
 </template>
 <script>
 import pagination from '@/components/pagination';
-import {searchData,edit,del,add} from '@/api/bizline/index';
+import {searchData,edit,del,add} from '@/api/dimension/index';
+import {searchBizLine} from '@/api/bizline/index';
+import {searchDictionaryAll} from '@/api/dictionary/index';
 
 export default {
     data() {
         return {
             tableData: [],
-            titleDialog: '新增业务线',
             param: {
                 searchVal: ''
             },
+            titleDialog: '新增维度管理',
+            bizLineList: [],
             addParam: {},
             dialogVisible: false,
             totalCount: 0,
+            status: 'add',
             pageNo: 1,
             pageSize: 20
         };
     },
     mounted() {
-        this.search();
+        this.searchBizLineList();
     },
     components: {pagination},
     methods: {
@@ -123,16 +150,48 @@ export default {
                 })
             }
         },
+        async searchBizLineList() {
+            try {
+                let res = await searchBizLine();
+                this.bizLineList = res.data || [];
+                if (this.bizLineList.length > 0) {
+                    this.param.bizLineId = this.bizLineList[0].id;
+                    this.search();
+                    this.searchDictionaryAll();
+                }
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        async searchDictionaryAll() {
+            try {
+                let res = await searchDictionaryAll(this.param);
+                this.dictionaryList = res.data || [];
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
         showDialog(status, row) {
             if (status === 'add') {
                 this.status = 'add';
-                this.titleDialog = '新增业务线';
+                this.titleDialog = '新增维度管理';
                 this.addParam = {};
+                if (this.bizLineList.length > 0) {
+                    this.addParam.bizLineId = this.bizLineList[0].id;
+                }
             }
             else {
                 this.status = 'edit';
-                this.titleDialog = '编辑业务线';
                 this.addParam = row;
+                this.titleDialog = '编辑维度管理';
             }
             this.dialogVisible = true;
         },
@@ -190,7 +249,6 @@ export default {
             }
         },
         reset() {
-            this.param = {};
             this.pageSize = 20;
             this.pageNo = 1;
             this.search();
@@ -210,14 +268,14 @@ export default {
 </script>
 
 <style lang="less">
-.bizline {
-    .bizline-search {
+.dimension {
+    .dimension-search {
         .el-input {
             width: 180px;
             margin-right: 10px;
         }
     }
-    .bizline-add {
+    .dimension-add {
         float: right;
     }
 }

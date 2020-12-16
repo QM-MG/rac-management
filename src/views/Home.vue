@@ -4,7 +4,7 @@
 			<left-menu :toggleMenuShow="toggleMenuShow"></left-menu>
 		</div>
 		<div class="aside main" :style="{marginLeft:toggleMenuShow?'64px': '250px'}"> 
-			<top @toggleMenu="toggleMenu"></top>
+			<top :toggleMenuShow="toggleMenuShow" @toggleMenu="toggleMenu"></top>
 			<div class="main-container">
 				<router-view></router-view>
 			</div>
@@ -30,7 +30,6 @@ export default {
     methods: {
 		toggleMenu() {
 			this.toggleMenuShow = !this.toggleMenuShow;
-			console.log(this.toggleMenuShow)
 		}
 	}
 };
@@ -51,6 +50,11 @@ export default {
 	.aside.main{
 		-webkit-transition: margin-left .28s;
 		transition: margin-left .28s;
+		height: calc(100% - 70px);
+		padding-top: 60px;
+		padding-bottom: 10px;
+		position: relative;
+		overflow: auto;
 		.main-container {
 			padding: 10px;
 		}

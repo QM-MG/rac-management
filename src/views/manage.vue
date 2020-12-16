@@ -14,6 +14,8 @@
             <el-button type="warning" @click="reset" size="mini">重置</el-button>
             <el-button type="success" class="func-add" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
+        <!-- default-expand-all
+    :tree-props="{children: 'children', hasChildren: 'hasChildren'}" -->
          <el-table
             :data="tableData"
             style="width: 100%">
@@ -71,7 +73,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="产品线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="lineDisabled">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="lineDisabled || status=='edit'">
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -91,6 +93,15 @@
                                 @node-click="nodeCheck">
                             </el-tree>
                         </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="功能url">
+                            <el-input v-model="addParam.content" size="mini" :disabled="status === 'edit'"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
                     </el-col>
                 </el-row>
             </el-form>
@@ -175,14 +186,14 @@ export default {
                 this.addParam = {
                     parentId : -1
                 };
+                if (this.bizLineList.length > 0) {
+                    this.addParam.bizLineId = this.bizLineList[0].id;
+                }
             }
             else {
                 this.status = 'edit';
                 this.titleDialog = '编辑功能';
                 this.addParam = row;
-                if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.bizLineList[0].id;
-                }
             }
             this.dialogVisible = true;
         },
@@ -278,6 +289,10 @@ export default {
             }
         },
         reset() {
+            this.param = {};
+            if (this.bizLineList.length > 0) {
+                this.param.bizLineId = this.bizLineList[0].id;
+            }
             this.pageSize = 20;
             this.pageNo = 1;
             this.search();

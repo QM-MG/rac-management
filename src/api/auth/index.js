@@ -13,9 +13,12 @@ export function edit(param) {
 export function del(param) {
     return axiosIns.post(url.ROLE_DEL, param); 
 }
-export function save(param) {
+export function saveBind(param) {
     return axiosIns.post(url.ROLE_TO_FUNC_SAVE, param); 
 }
 export function roleToFunc(param) {
     return axiosIns.post(url.ROLE_TO_FUNC, param); 
+}
+export function roleListAll(param) {
+    return axiosIns.post(url.ROLE_LIST_ALL, param); 
 }

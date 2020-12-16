@@ -17,3 +17,7 @@ export function del(param) {
 export function userToRole(param) {
     return axiosIns.post(url.USER_TO_ROLE, param); 
 }
+// 用户绑定角色保存
+export function userToRoleSave(param) {
+    return axiosIns.post(url.USER_TO_ROLE_SAVE, param); 
+}
