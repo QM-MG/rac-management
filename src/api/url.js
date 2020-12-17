@@ -48,10 +48,15 @@ export const DIMENSION_ADD = './dimension/create';
 export const DIMENSION_EDIT = './dimension/edit';
 export const DIMENSION_DEL = './dimension/delete';
 
-export const DIMENSION_Tree_LIST = './dimension/node/listByParentId';
-export const DIMENSION_Tree_CREATE = './dimension/node/create';
-export const DIMENSION_Tree_EDIT = './dimension/node/edit';
-export const DIMENSION_Tree_DEL = './dimension/node/delete';
+export const DIMENSION_TREE_LIST = './dimension/node/listByParentId';
+export const DIMENSION_TREE_CREATE = './dimension/node/create';
+export const DIMENSION_TREE_EDIT = './dimension/node/edit';
+export const DIMENSION_TREE_DEL = './dimension/node/delete';
+
+export const DICTIONARY_TREE_LIST = './dictionary/node/listByParentId';
+export const DICTIONARY_TREE_CREATE = './dictionary/node/create';
+export const DICTIONARY_TREE_EDIT = './dictionary/node/edit';
+export const DICTIONARY_TREE_DEL = './dictionary/node/delete';
 
 
 

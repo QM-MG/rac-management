@@ -16,3 +16,17 @@ export function del(param) {
 export function searchDictionaryAll(param) {
     return axiosIns.post(url.DICTIONARY_LIST_ALL, param); 
 }
+
+export function findDictionaryTreeList(param) {
+    console.log(22,param)
+    return axiosIns.post(url.DICTIONARY_TREE_LIST, param); 
+}
+export function treeAdd(param) {
+    return axiosIns.post(url.DICTIONARY_TREE_CREATE, param); 
+}
+export function treeEdit(param) {
+    return axiosIns.post(url.DICTIONARY_TREE_EDIT, param); 
+}
+export function treeDel(param) {
+    return axiosIns.post(url.DICTIONARY_TREE_DEL, param); 
+}

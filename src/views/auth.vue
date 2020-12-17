@@ -93,7 +93,7 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="产品线">
+                        <el-form-item label="业务线">
                             <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
                                 <el-option
                                 v-for="item in bizLineList"
