@@ -48,3 +48,10 @@ export const DIMENSION_ADD = './dimension/create';
 export const DIMENSION_EDIT = './dimension/edit';
 export const DIMENSION_DEL = './dimension/delete';
 
+export const DIMENSION_Tree_LIST = './dimension/node/listByParentId';
+export const DIMENSION_Tree_CREATE = './dimension/node/create';
+export const DIMENSION_Tree_EDIT = './dimension/node/edit';
+export const DIMENSION_Tree_DEL = './dimension/node/delete';
+
+
+
