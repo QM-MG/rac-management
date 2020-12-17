@@ -122,6 +122,7 @@ export default {
             titleDialog: '新增维度管理',
             bizLineList: [],
             addParam: {},
+            dictionaryList: [],
             dialogVisible: false,
             totalCount: 0,
             status: 'add',

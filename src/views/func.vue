@@ -14,44 +14,45 @@
             <el-button type="warning" @click="reset" size="mini">重置</el-button>
             <el-button type="success" class="func-add" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
-        <!-- default-expand-all
-    :tree-props="{children: 'children', hasChildren: 'hasChildren'}" -->
-         <el-table
-            :data="tableData"
-            style="width: 100%">
-            <el-table-column
-                prop="enName"
-                label="英文名"
-                >
-            </el-table-column>
-            <el-table-column
-                prop="cnName"
-                label="中文"
-            >
-            </el-table-column>
-            <el-table-column
-                prop="updateTime"
-                label="更新时间">
-            </el-table-column>
-            <el-table-column
-                label="操作">
-                <template slot-scope="scope">
-                    <el-button @click="showDialog('edit', scope.row)" type="text">
-                        编辑
-                    </el-button>
-                    <el-button @click="del(scope.row)" type="text">
-                        删除
-                    </el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <pagination
-            :totalCount="totalCount"
-            :pageNo="pageNo"
-            @handleSizeChange="handleSizeChange"
-            @handleCurrentChange="handleCurrentChange"
-            >
-        </pagination>
+        <el-row style="margin-top: 25px;">
+            <el-col :span="6" :offset="3" class="content-wrap">
+                <p class="content-title">功能管理树</p>
+                <el-tree
+                    v-if="this.param.bizLineId"
+                    :props="props"
+                    :load="loadNode"
+                    lazy
+                    ref="tree"
+                    @node-click="nodeCheck">
+                </el-tree>
+            </el-col>
+            <el-col :span="11" :offset="2" class="content-wrap">
+                <p class="content-title">功能管理详情</p>
+                <el-form ref="form" :model="addParam" label-width="80px" v-show="isShow">
+                    <el-row>
+                        <el-col :span="24">
+                            <el-form-item label="英文名">
+                                <span>{{currNode.enName}}</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="24">
+                            <el-form-item label="中文名">
+                                <span>{{currNode.cnName}}</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="24">
+                            <el-form-item label="功能url">
+                                <span>{{currNode.content}}</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-col>
+        </el-row>
         <el-dialog
             :title="titleDialog"
             :visible.sync="dialogVisible"
@@ -85,13 +86,12 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="功能">
-                            <el-tree
-                                :props="props"
-                                :load="loadNode"
-                                lazy
-                                ref="tree"
-                                @node-click="nodeCheck">
-                            </el-tree>
+                            <el-cascader
+                                v-model="parentIdList"
+                                :props="funcProps"
+                                size="mini"
+                                clearable>
+                            </el-cascader>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -113,11 +113,12 @@
     </div>
 </template>
 <script>
-import pagination from '@/components/pagination';
 import {searchFuncList,edit,del,add, findFuncTree} from '@/api/func/index';
 import {searchBizLine} from '@/api/bizline/index';
+import {isEmptyObj} from '@/utils/index.js';
 export default {
     data() {
+        let me = this;
         return {
             tableData: [],
             param: {
@@ -128,22 +129,57 @@ export default {
             addParam: {
                 parentId: -1,
             },
-            dialogVisible: false,
-            bizLineList: [],
-            totalCount: 0,
-            pageNo: 1,
-            pageSize: 20,
-            titleDialog: '新增功能',
             props: {
                 label: 'cnName',
                 children: 'children'
             },
-            lineDisabled: false
+            parentIdList: [],
+            dialogVisible: false,
+            bizLineList: [],
+            titleDialog: '新增功能',
+            lineDisabled: false,
+            currNode: {},
+            funcProps: {
+                value: 'id',
+                label: 'cnName',
+                checkStrictly: true,
+                lazy: true,
+                async lazyLoad (node, resolve) {
+                    console.log(node, me)
+                    if (node.level === 0) {
+                        let list = await me.findFuncTree(-1);
+                        return resolve(list);
+                    }
+                    else{
+                        let list = await me.findFuncTree(node.value);
+                        return resolve(list);
+                    }
+                }
+            }
         };
     },
-    components: {pagination},
+    components: {},
     mounted() {
         this.searchbizLineList();
+    },
+    computed: {
+        isShow: function() {
+            return !isEmptyObj(this.currNode);
+        }
+    },
+    watch: {
+        parentIdList(val) {
+            if (val.length > 0) {
+                this.addParam.parentId = val[val.length - 1];
+                if (this.addParam.parentId !== -1) {
+                    // this.addParam.bizLineId = '';
+                    this.lineDisabled = true;
+                }
+                else {
+                    this.lineDisabled = false;
+                }
+            }
+        }
     },
     methods: {
         async search() {
@@ -169,7 +205,7 @@ export default {
                 this.bizLineList = res.data || [];
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
-                    this.search();
+                    // this.search();
                 }
             }
             catch (e) {
@@ -207,10 +243,11 @@ export default {
             
         },
         async add() {
+            console.log(this.addParam)
             try {
                 let res = await add(this.addParam);
                 this.dialogVisible = false;
-                this.search();
+                // this.search();
             }
             catch (e) {
                 this.$message({
@@ -241,7 +278,7 @@ export default {
                     message: '删除成功！',
                     type: 'success'
                 })
-                this.search();
+                // this.search();
             }
             catch (e) {
                 this.$message({
@@ -271,22 +308,19 @@ export default {
         async loadNode(node, resolve) {
             if (node.level === 0) {
                 let list = await this.findFuncTree(-1);
+                console.log(list)
                 return resolve(list);
             }
             else{
-                let list = await this.findFuncTree(node.id);
+                console.log(2)
+                let list = await this.findFuncTree(node.data.id);
                 return resolve(list);
             }
         },
+        // 点击树
         nodeCheck(node) {
-            this.addParam.parentId = node.id;
-            if (node.parentId !== -1) {
-                this.addParam.bizLineId = '';
-                this.lineDisabled = true;
-            }
-            else {
-                this.lineDisabled = false;
-            }
+            this.currNode = node;
+            console.log(1, node)
         },
         reset() {
             this.param = {};
@@ -295,17 +329,8 @@ export default {
             }
             this.pageSize = 20;
             this.pageNo = 1;
-            this.search();
+            // this.search();
         },
-        // 分页
-        handleSizeChange(val) {
-            this.pageSize = val;
-            this.pageNo = 1;
-            this.search();
-        },
-        handleCurrentChange(val) {
-            this.pageNo = val;
-        }
     }
 };
 </script>
@@ -320,6 +345,15 @@ export default {
     }
     .func-add {
         float: right;
+    }
+    .content-title {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .content-wrap {
+        border: 1px solid #eee;
+        padding: 25px;
     }
 }
 .add-dialog {

@@ -1,6 +1,10 @@
 <template>
     <div class="title-style" :style="{width:toggleMenuShow? 'calc(100% - 64px)': 'calc(100% - 250px)'}">
         <i class="el-icon-menu" @click="toggleMenu"></i>
+        <el-breadcrumb  separator-class="el-icon-arrow-right" class="bread-wrap">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item v-show="showBread">{{$route.meta.title}}</el-breadcrumb-item>
+        </el-breadcrumb>
         <el-dropdown  @command="handleCommand">
             <span class="el-dropdown-link">
                 <img src="../assets/img/avatar.jpg" class="avatar-img" />
@@ -14,7 +18,9 @@
 <script>
 export default {
     data() {
-        return {};
+        return {
+            showBread: true
+        };
     },
     mounted() {
     },
@@ -22,6 +28,13 @@ export default {
         toggleMenuShow: {
             type: Boolean,
             default: true
+        }
+    },
+    watch: {
+        '$route' (to, from) {
+            if (to.path !== '/') {
+                this.showBread = true;
+            }
         }
     },
     methods: {
@@ -54,6 +67,7 @@ export default {
         line-height: 50px;
         margin-left: 5px;
         cursor: pointer;
+        float: left;
     }
     .el-dropdown {
         float: right;
@@ -64,6 +78,11 @@ export default {
         float: right;
         margin-right: 20px;
         margin-top: 5px;
+    }
+    .bread-wrap {
+        float: left;
+        margin-top: 17px;
+        margin-left: 20px;
     }
 }
 </style>

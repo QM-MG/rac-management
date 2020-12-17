@@ -5,7 +5,7 @@ import home from './views/home.vue'
 import bizline from './views/bizline.vue'
 import user from './views/user.vue'
 import auth from './views/auth.vue'
-import manage from './views/manage.vue'
+import func from './views/func.vue'
 import dictionary from './views/dictionary.vue'
 import property from './views/property.vue'
 import bizentity from './views/bizentity.vue'
@@ -23,46 +23,73 @@ export default new Router({
     {
       path: '/',
       component: home,
+      meta: {
+        title: '首页'
+      },
       children: [
         {
           path: '/bizline',
           name: 'bizline',
-          component: bizline
+          component: bizline,
+          meta: {
+            title: '业务线管理'
+          }
         },
         {
           path: '/user',
           name: 'user',
-          component: user
+          component: user,
+          meta: {
+            title: '用户管理'
+          }
         },
         {
           path: '/auth',
           name: 'auth',
-          component: auth
+          component: auth,
+          meta: {
+            title: '角色管理'
+          }
         },
         {
-          path: '/manage',
-          name: 'manage',
-          component: manage
+          path: '/func',
+          name: 'func',
+          component: func,
+          meta: {
+            title: '功能管理'
+          }
         },
         {
           path: '/dictionary',
           name: 'dictionary',
-          component: dictionary
+          component: dictionary,
+          meta: {
+            title: '字典管理'
+          }
         },
         {
           path: '/property',
           name: 'property',
-          component: property
+          component: property,
+          meta: {
+            title: '扩展属性'
+          }
         },
         {
           path: '/bizentity',
           name: 'bizentity',
-          component: bizentity
+          component: bizentity,
+          meta: {
+            title: '实体管理'
+          }
         },
         {
           path: '/dimension',
           name: 'dimension',
-          component: dimension
+          component: dimension,
+          meta: {
+            title: '维度管理'
+          }
         },
       ]
     },

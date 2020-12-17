@@ -111,6 +111,7 @@ export default {
             addParam: {},
             dialogVisible: false,
             totalCount: 0,
+            status: 'add',
             pageNo: 1,
             pageSize: 20
         };
