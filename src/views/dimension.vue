@@ -13,9 +13,12 @@
             <el-button type="success" @click="search" size="mini">搜索</el-button>
             <el-button type="warning" @click="reset" size="mini">重置</el-button>
         </div>
-        <el-row>
-            <el-col :span="12">
-                <el-button type="success" class="dimension-add" @click="showDialog('add')" size="mini">新增</el-button>
+        <el-row class="content-wrap">
+            <el-col :span="12" class="content-border">
+                <div class="content-title">
+                    <span>维度列表</span>
+                    <el-button type="success" class="dimension-add" @click="showDialog('add')" size="mini">新增</el-button>
+                </div>
                 <el-table
                     :data="tableData"
                     @row-click="rowClick"
@@ -58,16 +61,17 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="10" :offset="2">
-                <div class="tree-wrap">
-                    <p class="content-title">维度节点树</p>
-                    <el-button class="tree-add" type="success" @click="showTreeDialog('add')" size="mini">新增</el-button>
+            <el-col :span="10" :offset="2"  class="content-border">
+                <div class="content-title">
+                    <span>维度节点树</span>
+                    <el-button class="dimension-add" type="success" @click="showTreeDialog('add')" size="mini">新增</el-button>
                 </div>
                 <el-tree
                     v-if="this.param.bizLineId && currRow.nodeTypeId"
                     class="tree"
                     :props="props"
                     :load="loadNode"
+                    :key="treeKey"
                     lazy
                     ref="tree"
                     @node-click="nodeCheck">
@@ -287,6 +291,7 @@ export default {
                     }
                 }
             },
+            treeKey: '',
             totalCount: 0,
             status: 'add',
             treeStatus: 'add',
@@ -462,7 +467,7 @@ export default {
             try {
                 let res = await treeAdd(this.addTreeParam);
                 this.dialogTreeVisible = false;
-                this.search();
+                this.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -555,6 +560,10 @@ export default {
                 return resolve(list);
             }
         },
+        // 刷新key值，重新渲染tree
+        renderTree() {
+            this.treeKey = +new Date();
+        },
         // 点击树
         nodeCheck(node) {
             this.currNode = node;
@@ -596,15 +605,6 @@ export default {
         .tree-add {
             float: right;
         }
-    }
-    .tree {
-        clear: both;
-    }
-}
-.add-dialog {
-    .el-input {
-        width: 180px;
-        margin-right: 10px;
     }
 }
 </style>

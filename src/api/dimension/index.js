@@ -25,3 +25,6 @@ export function treeEdit(param) {
 export function treeDel(param) {
     return axiosIns.post(url.DIMENSION_TREE_DEL, param); 
 }
+export function findDimensionList(param) {
+    return axiosIns.post(url.DIMENSION_LIST_ALL, param); 
+}

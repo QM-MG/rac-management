@@ -1,0 +1,19 @@
+.content-wrap {
+  margin-top: 20px;
+}
+.content-wrap .content-border {
+  border: 1px solid #eee;
+  padding: 20px;
+}
+.content-wrap .content-title {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+}
+.content-wrap .tree {
+  clear: both;
+  margin-top: 20px;
+}
+.add-dialog .el-input {
+  width: 180px;
+  margin-right: 10px;
+}

@@ -21,3 +21,7 @@ export function userToRole(param) {
 export function userToRoleSave(param) {
     return axiosIns.post(url.USER_TO_ROLE_SAVE, param); 
 }
+// 用户绑定维度和角色保存
+export function userToDimensionAuthSave(param) {
+    return axiosIns.post(url.USER_GRANTAUTH_SAVE, param); 
+}

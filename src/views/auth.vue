@@ -352,27 +352,6 @@ export default {
     .auth-add {
         float: right;
     }
-    .content-wrap {
-        margin-top: 20px;
-        .tree-title {
-            p {
-                float: left;
-                line-height: 36px;
-            }
-            .save-btn {
-                float: right;
-            }
-        }
-        .tree-wrap{
-            clear: both;
-        }
-    }
-}
-.add-dialog {
-    .el-input {
-        width: 180px;
-        margin-right: 10px;
-    }
 }
 </style>
 

@@ -90,6 +90,20 @@
                     show-checkbox
                     >
                 </el-tree>
+                <div class="tree-title">
+                    <p>维度树</p>
+                    <el-button type="primary" @click="saveBind" size="mini" class="save-btn">保存</el-button>
+                </div>
+                <el-tree
+                    class="tree-wrap"
+                    v-if="param.bizLineId"
+                    :props="props"
+                    node-key="id"
+                    ref="tree"
+                    :load="loadNode"
+                    lazy
+                    show-checkbox>
+                </el-tree>
             </el-col>
         </el-row>
         <el-dialog
@@ -173,9 +187,19 @@
 </template>
 <script>
 import pagination from '@/components/pagination';
-import {searchUserList,edit,del,add,userToRole,userToRoleSave} from '@/api/user/index';
+import {
+    searchUserList,
+    edit,
+    del,
+    add,
+    userToRole,
+    userToRoleSave,
+    USER_GRANTAUTH_SAVE
+} from '@/api/user/index';
 import {roleListAll} from '@/api/auth/index';
 import {searchBizLine} from '@/api/bizline/index';
+import {findDimensionList, findTreeList} from '@/api/dimension/index';
+
 export default {
     data() {
         return {
@@ -202,7 +226,11 @@ export default {
                 isLeaf: 'leaf'
             },
             saveParam: {
-            }
+            },
+            props: {
+                label: 'cnName',
+                children: 'children'
+            },
         };
     },
     components: {pagination},
@@ -368,6 +396,53 @@ export default {
                 })
             }
         },
+        // 查维度
+        async findDimensionList() {
+            try {
+                let param = {
+                    bizLineId: this.param.bizLineId
+                }
+                let res = await findDimensionList(param);
+                let treeList = res.data || {};
+                return treeList;
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 查维度节点树
+        async findFuncTree(parentId) {
+            let param = {
+                bizLineId: this.param.bizLineId,
+                dimensionId: this.currRow.id,
+                parentId
+            }
+            try {
+                let res = await findTreeList(param);
+                let treeList = res.data || [];
+                return treeList
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 加载维度树
+        async loadNode(node, resolve) {
+            if (node.level === 0) {
+                let list = await this.findDimensionList();
+                return resolve(list);
+            }
+            else{
+                let list = await this.findFuncTree(node.id);
+                return resolve(list);
+            }
+        },
         reset() {
             this.param = {};
             if (this.bizLineList.length > 0) {
@@ -410,18 +485,6 @@ export default {
         .save-btn {
             float: right;
         }
-    }
-    .tree-wrap{
-        clear: both;
-    }
-    .content-wrap {
-        margin-top: 20px;
-    }
-}
-.add-dialog {
-    .el-input {
-        width: 180px;
-        margin-right: 10px;
     }
 }
 </style>
