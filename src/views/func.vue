@@ -22,6 +22,23 @@
                     lazy
                     ref="tree"
                     @node-click="nodeCheck">
+                    <span class="custom-tree-node" slot-scope="{ node, data }">
+                        <span>{{ node.label }}</span>
+                        <span style="margin-left: 10px;">
+                        <el-button
+                            type="text"
+                            size="mini"
+                            @click="() => treeEdit(node, data)">
+                            编辑
+                        </el-button>
+                        <el-button
+                            type="text"
+                            size="mini"
+                            @click="() => remove(node, data)">
+                            删除
+                        </el-button>
+                        </span>
+                    </span>
                 </el-tree>
             </el-col>
             <el-col :span="9" :offset="1" class="content-wrap">
@@ -146,7 +163,6 @@ export default {
                 checkStrictly: true,
                 lazy: true,
                 async lazyLoad (node, resolve) {
-                    console.log(11,node, me)
                     if (node.level === 0) {
                         let list = await me.findFuncTree(-1);
                         return resolve(list);
@@ -222,6 +238,23 @@ export default {
                 this.addParam = row;
             }
             this.dialogVisible = true;
+        },
+        treeEdit(node) {
+            this.showDialog('edit', node.data);
+            this.parentIdList = node.data.parentId;
+        },
+        // 删除节点
+        async remove(node, data) {
+            try {
+                let res = await del({id: data.id});
+                this.renderTree();
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
         },
         save() {
             if (this.status === 'add') {
@@ -308,7 +341,6 @@ export default {
         // 点击树
         nodeCheck(node) {
             this.currNode = node;
-            console.log(1, node)
         },
         // 刷新key值，重新渲染tree
         renderTree() {

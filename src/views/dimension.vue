@@ -446,7 +446,6 @@ export default {
                 this.treeStatus = 'edit';
                 this.addTreeParam = row;
                 this.parentIdList = [row.type];
-                console.log(this.parentIdList)
                 this.pparentOwnIdList = [row.parentId]
                 this.titleDialog = '编辑维度节点';
             }

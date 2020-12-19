@@ -335,11 +335,9 @@ export default {
         async loadNode(node, resolve) {
             if (node.level === 0) {
                 let list = await this.findFuncTree(-1);
-                console.log(list)
                 return resolve(list);
             }
             else{
-                console.log(2)
                 let list = await this.findFuncTree(node.data.id);
                 return resolve(list);
             }

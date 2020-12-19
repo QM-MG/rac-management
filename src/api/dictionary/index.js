@@ -18,7 +18,6 @@ export function searchDictionaryAll(param) {
 }
 
 export function findDictionaryTreeList(param) {
-    console.log(22,param)
     return axiosIns.post(url.DICTIONARY_TREE_LIST, param); 
 }
 export function treeAdd(param) {

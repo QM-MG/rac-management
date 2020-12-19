@@ -455,7 +455,6 @@ export default {
 
         },
         delDimensionChild(tag) {
-            console.log(tag)
             this.dimensionChildActiveList.forEach((item, index) => {
                 if (item.id === tag.id) {
                     this.dimensionChildActiveList.splice(index, 1);
