@@ -2,7 +2,7 @@
     <div class="bizentity">
         <div class="bizentity-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -75,7 +75,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="业务线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -110,6 +110,7 @@ export default {
             bizLineList: [],
             addParam: {},
             dialogVisible: false,
+            status: 'add',
             totalCount: 0,
             pageNo: 1,
             pageSize: 20
@@ -158,7 +159,7 @@ export default {
                 this.titleDialog = '新增业务管理';
                 this.addParam = {};
                 if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.bizLineList[0].id;
+                    this.addParam.bizLineId = this.param.bizLineId;
                 }
             }
             else {

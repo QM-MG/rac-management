@@ -8,16 +8,17 @@ export const USER_LIST = './user/listPage';
 export const USER_ADD = './user/create';
 export const USER_EDIT = './user/edit';
 export const USER_DEL = './user/delete';
-export const USER_TO_ROLE = './user/listRoleId'; // 用户已绑定的角色
+export const USER_TO_ROLE = './user/listUserRoleId'; // 用户已绑定的角色
 export const USER_TO_ROLE_SAVE = './user/bindRoles'; // 用户绑定角色保存
 export const USER_GRANTAUTH_SAVE = './user/grantAuth'; // 用户绑定角色保存
+export const USER_TO_DIMENSION = './user/listUserDimensionNodes'; // 用户已绑定维度
 // export const USER_BIND_DIMENSION = './user/bindDimensionNodes';
 
 export const ROLE_LIST = './role/listPage';
 export const ROLE_ADD = './role/create';
 export const ROLE_EDIT = './role/edit';
 export const ROLE_DEL = './role/delete';
-export const ROLE_LIST_ALL = './role/listAuthRoles';
+export const ROLE_LIST_ALL = './role/listByBizLineId';
 export const ROLE_TO_FUNC = './role/listFuncId'; // 角色已绑定的功能id
 export const ROLE_TO_FUNC_SAVE = './role/bindFuncs'; // 角色绑定功能保存接口
 

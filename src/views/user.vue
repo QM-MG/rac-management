@@ -2,7 +2,7 @@
     <div class="user">
         <div class="user-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -15,7 +15,10 @@
             <el-button type="success" class="user-add" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
         <el-row class="content-wrap">
-            <el-col :span="17">
+            <el-col :span="17" class="content-border">
+                <div class="content-title">
+                    <span>用户列表</span>
+                </div>
                 <el-table
                     :data="tableData"
                     highlight-current-row
@@ -76,33 +79,58 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="6"  :offset="1">
-                <div class="tree-title">
-                    <p>角色列表</p>
-                    <el-button type="primary" @click="saveBind" size="mini" class="save-btn">保存</el-button>
+            <el-col :span="6"  :offset="1" class="content-border">
+                <div class="content-title">
+                    <span>角色列表</span>
+                    <el-button type="primary" @click="saveBind" size="mini" class="btn-right">保存</el-button>
                 </div>
                 <el-tree
+                    :key="param.bizLineId"
                     class="tree-wrap"
                     :data="roleAll"
                     node-key="id"
-                    ref="tree"
+                    ref="roleTree"
                     :props="defaultProps"
                     show-checkbox
                     >
                 </el-tree>
-                <div class="tree-title">
-                    <p>维度树</p>
-                    <el-button type="primary" @click="saveBind" size="mini" class="save-btn">保存</el-button>
+                <div class="content-title" style="margin: 20px 0;">
+                    <span>维度树</span>
                 </div>
+                <div class="tag-wrap">
+                    <el-tag
+                        v-for="tag in dimensionChildActiveList"
+                        :key="tag.id"
+                        closable
+                        @close="delDimensionChild(tag)"
+                        >
+                        {{tag.cnName}}
+                    </el-tag>
+                </div>
+                <el-select
+                    :disabled="!this.saveParam.userId"
+                    v-model="dimensionId"
+                    placeholder="请选择"
+                    @change="dimensionChange">
+                        <el-option
+                        v-for="item in dimensionList"
+                        :key="item.id"
+                        :label="item.cnName"
+                        :value="item.id">
+                        </el-option>
+                </el-select>
                 <el-tree
                     class="tree-wrap"
-                    v-if="param.bizLineId"
+                    :key="treeKey"
+                    v-if="dimensionId"
+                    :expand-on-click-node="false"
                     :props="props"
                     node-key="id"
-                    ref="tree"
+                    ref="dimensionTree"
+                    @node-click="handleNodeClick"
                     :load="loadNode"
                     lazy
-                    show-checkbox>
+                    >
                 </el-tree>
             </el-col>
         </el-row>
@@ -147,7 +175,7 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="业务线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -165,11 +193,12 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
+                        <!-- 0 启用 1禁用 -->
                         <el-form-item label="状态">
                             <el-switch
                                 v-model="addParam.status"
-                                active-value="0"
-                                inactive-value="1"
+                                :active-value="0"
+                                :inactive-value="1"
                                 active-text="启用"
                                 inactive-text="禁用">
                             </el-switch>
@@ -194,7 +223,8 @@ import {
     add,
     userToRole,
     userToRoleSave,
-    USER_GRANTAUTH_SAVE
+    userToDimensionAuthSave,
+    userToDimension
 } from '@/api/user/index';
 import {roleListAll} from '@/api/auth/index';
 import {searchBizLine} from '@/api/bizline/index';
@@ -210,7 +240,7 @@ export default {
             },
             addParam: {
                 gender: 0,
-                status: '1'
+                status: 0
             },
             status: 'add',
             dialogVisible: false,
@@ -225,18 +255,22 @@ export default {
                 children: 'children',
                 isLeaf: 'leaf'
             },
+            treeKey: '',
             saveParam: {
             },
+            dimensionId: '',
+            dimensionList: [],
             props: {
                 label: 'cnName',
                 children: 'children'
             },
+            count: 0,
+            dimensionChildActiveList: [] // 已被关联的子节点
         };
     },
     components: {pagination},
     mounted() {
         this.searchbizLineList();
-        this.findRoleListAll();
     },
     methods: {
         async search() {
@@ -247,6 +281,11 @@ export default {
                 let data = res.data || {};
                 this.totalCount = data.totalCount;
                 this.tableData = data.dataList || [];
+                this.count++
+                this.findRoleListAll();
+                this.findDimensionList();
+                this.dimensionId = '';
+                this.dimensionChildActiveList = [];
             }
             catch (e) {
                 this.$message({
@@ -263,6 +302,8 @@ export default {
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
                     this.search();
+                    this.findRoleListAll();
+                    this.findDimensionList();
                 }
             }
             catch (e) {
@@ -275,7 +316,7 @@ export default {
         // 查全部角色
         async findRoleListAll() {
             try {
-                let res = await roleListAll();
+                let res = await roleListAll(this.param);
                 this.roleAll = res.data || [];
             }
             catch (e) {
@@ -288,10 +329,12 @@ export default {
         showDialog(status, row) {
             if (status === 'add') {
                 this.status = 'add';
-                this.addParam = {};
+                this.addParam = {
+                    status: 0
+                };
                 this.titleDialog = '用户新增';
                 if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.bizLineList[0].id;
+                    this.addParam.bizLineId = this.param.bizLineId
                 }
             }
             else {
@@ -356,15 +399,18 @@ export default {
             }
         },
         handleRowChange(row) {
-            this.saveParam.userId = row.id;
-            this.findUserToRole();
+            if (row) {
+                this.saveParam.userId = row.id;
+                this.findUserToRole();
+                this.findUserToDomesion();
+            }
         },
-        // 查询用户已绑定的功能
+        // 查询用户已绑定的角色
         async findUserToRole() {
             try {
                 let res = await userToRole(this.saveParam);
                 let data = res.data || [];
-                this.$refs.tree.setCheckedKeys(data);
+                this.$refs.roleTree.setCheckedKeys(data);
             }
             catch (e) {
                 this.$message({
@@ -372,6 +418,49 @@ export default {
                     type: 'error'
                 })
             }
+        },
+        // 查用户绑定维度
+        async findUserToDomesion() {
+            try {
+                if (!this.saveParam.userId) {
+                    return;
+                }
+                let res = await userToDimension(this.saveParam);
+                let data = res.data || [];
+                this.dimensionChildActiveList = data;
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 刷新key值，重新渲染tree
+        renderTree() {
+            this.treeKey = +new Date();
+        },
+        handleNodeClick(node) {
+            this.dimensionChildActiveList.forEach((item, index) => {
+                if (node.dimensionId === item.dimensionId) {
+                    this.dimensionChildActiveList.splice(index, 1, node);
+                }
+                else if (node.id !== item.id) {
+                    this.dimensionChildActiveList.push(node)
+                }
+            })
+            if (this.dimensionChildActiveList.length <= 0) {
+                this.dimensionChildActiveList.push(node)
+            }
+
+        },
+        delDimensionChild(tag) {
+            console.log(tag)
+            this.dimensionChildActiveList.forEach((item, index) => {
+                if (item.id === tag.id) {
+                    this.dimensionChildActiveList.splice(index, 1);
+                }
+            })
         },
         async saveBind() {
             if (!this.saveParam.userId) {
@@ -381,9 +470,27 @@ export default {
                 })
                 return;
             }
-            this.saveParam.roleIds = this.$refs.tree.getCheckedKeys();
+            this.saveParam.roleIds = this.$refs.roleTree.getCheckedKeys();
+            if (!this.saveParam.roleIds) {
+                this.$message({
+                    message: '请选择角色！',
+                    type: 'warning'
+                })
+                return;
+            }
+            this.saveParam.dimensionNodeIds = []
+            this.dimensionChildActiveList.forEach(item => {
+                this.saveParam.dimensionNodeIds.push(item.id);
+            })
+            if (this.saveParam.dimensionNodeIds.length <= 0) {
+                this.$message({
+                    message: '请选择维度！',
+                    type: 'warning'
+                })
+                return;
+            }
             try {
-                let res = await userToRoleSave(this.saveParam);
+                let res = await userToDimensionAuthSave(this.saveParam);
                 this.$message({
                     message: '保存成功！',
                     type: 'success'
@@ -403,8 +510,10 @@ export default {
                     bizLineId: this.param.bizLineId
                 }
                 let res = await findDimensionList(param);
-                let treeList = res.data || {};
-                return treeList;
+                this.dimensionList = res.data || [];
+                if (this.dimensionList.length > 0) {
+                    this.dimensionId = this.dimensionList[0].id;
+                }
             }
             catch (e) {
                 this.$message({
@@ -413,11 +522,18 @@ export default {
                 })
             }
         },
+        // 维度节点变化查维度子节点
+        dimensionChange(val) {
+            this.findFuncTree(val);
+            this.$nextTick(() => {
+                this.renderTree();
+            })
+        },
         // 查维度节点树
-        async findFuncTree(parentId) {
+        async findFuncTree(dimensionId, parentId) {
             let param = {
                 bizLineId: this.param.bizLineId,
-                dimensionId: this.currRow.id,
+                dimensionId,
                 parentId
             }
             try {
@@ -435,11 +551,11 @@ export default {
         // 加载维度树
         async loadNode(node, resolve) {
             if (node.level === 0) {
-                let list = await this.findDimensionList();
+                let list = await this.findFuncTree(this.dimensionId, -1);
                 return resolve(list);
             }
-            else{
-                let list = await this.findFuncTree(node.id);
+            else {
+                let list = await this.findFuncTree(this.dimensionId, node.data.id);
                 return resolve(list);
             }
         },
@@ -485,6 +601,15 @@ export default {
         .save-btn {
             float: right;
         }
+    }
+    .tree-wrap {
+        margin-top: 10px;
+    }
+    .child-text {
+        height: 25px;
+    }
+    .tag-wrap {
+        margin-bottom: 15px;
     }
 }
 </style>

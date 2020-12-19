@@ -1,8 +1,7 @@
 <template>
     <div class="func">
         <div class="func-search">
-            <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini">
+            <el-select v-model="bizLineId" placeholder="请选择" size="mini" @change="changeBiz">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -10,47 +9,48 @@
                 :value="item.id">
                 </el-option>
             </el-select>
-            <el-button type="success" @click="search" size="mini">搜索</el-button>
-            <el-button type="warning" @click="reset" size="mini">重置</el-button>
             <el-button type="success" class="func-add" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
-        <el-row style="margin-top: 25px;">
-            <el-col :span="6" :offset="3" class="content-wrap">
+        <el-row style="clear:both;">
+            <el-col :span="11" :offset="1" class="content-wrap">
                 <p class="content-title">功能管理树</p>
                 <el-tree
-                    v-if="this.param.bizLineId"
+                    v-if="this.bizLineId"
                     :props="props"
+                    :key = "treeKey"
                     :load="loadNode"
                     lazy
                     ref="tree"
                     @node-click="nodeCheck">
                 </el-tree>
             </el-col>
-            <el-col :span="11" :offset="2" class="content-wrap">
+            <el-col :span="9" :offset="1" class="content-wrap">
                 <p class="content-title">功能管理详情</p>
-                <el-form ref="form" :model="addParam" label-width="80px" v-show="isShow">
-                    <el-row>
-                        <el-col :span="24">
-                            <el-form-item label="英文名">
-                                <span>{{currNode.enName}}</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="24">
-                            <el-form-item label="中文名">
-                                <span>{{currNode.cnName}}</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="24">
-                            <el-form-item label="功能url">
-                                <span>{{currNode.content}}</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="12">
-                        </el-col>
-                    </el-row>
-                </el-form>
+                <div style="min-height: 210px;">
+                    <el-form ref="form" :model="addParam" label-width="80px" v-show="isShow">
+                        <el-row>
+                            <el-col :span="24">
+                                <el-form-item label="英文名">
+                                    <span>{{currNode.enName}}</span>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="24">
+                                <el-form-item label="中文名">
+                                    <span>{{currNode.cnName}}</span>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="24">
+                                <el-form-item label="功能url">
+                                    <span>{{currNode.content}}</span>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                </div>
             </el-col>
         </el-row>
         <el-dialog
@@ -74,7 +74,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="产品线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="lineDisabled || status=='edit'">
+                            <el-select v-model="bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -85,8 +85,9 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="功能">
+                        <el-form-item label="父节点">
                             <el-cascader
+                                :key="bizLineId && count"
                                 v-model="parentIdList"
                                 :props="funcProps"
                                 size="mini"
@@ -121,7 +122,7 @@ export default {
         let me = this;
         return {
             tableData: [],
-            param: {
+            addParam: {
                 searchVal: '',
                 bizLineId: ''
             },
@@ -145,7 +146,7 @@ export default {
                 checkStrictly: true,
                 lazy: true,
                 async lazyLoad (node, resolve) {
-                    console.log(node, me)
+                    console.log(11,node, me)
                     if (node.level === 0) {
                         let list = await me.findFuncTree(-1);
                         return resolve(list);
@@ -155,7 +156,10 @@ export default {
                         return resolve(list);
                     }
                 }
-            }
+            },
+            bizLineId: '',
+            count: 0,
+            treeKey: ''
         };
     },
     components: {},
@@ -172,7 +176,7 @@ export default {
             if (val.length > 0) {
                 this.addParam.parentId = val[val.length - 1];
                 if (this.addParam.parentId !== -1) {
-                    // this.addParam.bizLineId = '';
+                    // this.bizLineId = '';
                     this.lineDisabled = true;
                 }
                 else {
@@ -182,29 +186,17 @@ export default {
         }
     },
     methods: {
-        async search() {
-            this.param.pageNo = this.pageNo;
-            this.param.pageSize = this.pageSize;
-            try {
-                let res = await searchFuncList(this.param);
-                let data = res.data || {};
-                this.totalCount = data.totalCount;
-                this.tableData = data.dataList || [];
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '查询失败！',
-                    type: 'error'
-                })
-            }
-            
+        changeBiz(val) {
+            this.bizLineId = val;
+            this.currNode = {};
+            this.renderTree();
         },
         async searchbizLineList() {
             try {
                 let res = await searchBizLine();
                 this.bizLineList = res.data || [];
                 if (this.bizLineList.length > 0) {
-                    this.param.bizLineId = this.bizLineList[0].id;
+                    this.bizLineId = this.bizLineList[0].id;
                     // this.search();
                 }
             }
@@ -219,12 +211,10 @@ export default {
             if (status === 'add') {
                 this.status = 'add';
                 this.titleDialog = '新增功能';
-                this.addParam = {
-                    parentId : -1
-                };
-                if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.bizLineList[0].id;
-                }
+                this.addParam = {};
+                this.addParam.parentId = -1;
+                this.addParam.bizLineId = this.bizLineId;
+                this.count++
             }
             else {
                 this.status = 'edit';
@@ -243,11 +233,10 @@ export default {
             
         },
         async add() {
-            console.log(this.addParam)
             try {
                 let res = await add(this.addParam);
                 this.dialogVisible = false;
-                // this.search();
+                this.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -260,6 +249,7 @@ export default {
             try {
                 let res = await edit(this.addParam);
                 this.dialogVisible = false;
+                this.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -278,7 +268,7 @@ export default {
                     message: '删除成功！',
                     type: 'success'
                 })
-                // this.search();
+                this.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -289,7 +279,7 @@ export default {
         },
         async findFuncTree(parentId) {
             let param = {
-                bizLineId: this.param.bizLineId,
+                bizLineId: this.bizLineId,
                 parentId
             }
             try {
@@ -308,11 +298,9 @@ export default {
         async loadNode(node, resolve) {
             if (node.level === 0) {
                 let list = await this.findFuncTree(-1);
-                console.log(list)
                 return resolve(list);
             }
             else{
-                console.log(2)
                 let list = await this.findFuncTree(node.data.id);
                 return resolve(list);
             }
@@ -322,14 +310,9 @@ export default {
             this.currNode = node;
             console.log(1, node)
         },
-        reset() {
-            this.param = {};
-            if (this.bizLineList.length > 0) {
-                this.param.bizLineId = this.bizLineList[0].id;
-            }
-            this.pageSize = 20;
-            this.pageNo = 1;
-            // this.search();
+        // 刷新key值，重新渲染tree
+        renderTree() {
+            this.treeKey = +new Date();
         },
     }
 };

@@ -2,7 +2,7 @@
     <div class="dictionary">
         <div class="dictionary-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -13,9 +13,12 @@
             <el-button type="success" @click="search" size="mini">搜索</el-button>
             <el-button type="warning" @click="reset" size="mini">重置</el-button>
         </div>
-        <el-row>
-            <el-col :span="12">
-                <el-button type="success" class="dictionary-add" @click="showDialog('add')" size="mini">新增</el-button>
+        <el-row class="content-wrap">
+            <el-col :span="12" class="content-border">
+                <div class="content-title">
+                    <span>字典列表</span>
+                    <el-button type="success" class="btn-right" @click="showDialog('add')" size="mini">新增</el-button>
+                </div>
                 <el-table
                     :data="tableData"
                     @row-click="rowClick"
@@ -58,14 +61,15 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="10" :offset="2">
-                <div class="tree-wrap">
-                    <p class="content-title">字典节点树</p>
-                    <el-button class="tree-add" type="success" @click="showTreeDialog('add')" size="mini">新增</el-button>
+            <el-col :span="11" :offset="1" class="content-border">
+                <div class="content-title">
+                    <span>字典节点树</span>
+                    <el-button class="btn-right" type="success" @click="showTreeDialog('add')" size="mini">新增</el-button>
                 </div>
                 <el-tree
                     v-if="this.param.bizLineId && currRow.id"
                     :props="props"
+                    :key = "treeKey"
                     :load="loadNode"
                     class="tree"
                     lazy
@@ -73,7 +77,7 @@
                     @node-click="nodeCheck">
                     <span class="custom-tree-node" slot-scope="{ node, data }">
                         <span>{{ node.label }}</span>
-                        <span>
+                        <span style="margin-left: 10px;">
                         <el-button
                             type="text"
                             size="mini"
@@ -112,7 +116,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="业务线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -150,7 +154,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="业务线">
-                            <el-select v-model="addTreeParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                            <el-select v-model="addTreeParam.bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -170,6 +174,7 @@
                     <el-col :span="12">
                         <el-form-item label="父节点">
                             <el-cascader
+                                :key="count"
                                 v-model="parentIdList"
                                 :props="funcProps"
                                 size="mini"
@@ -248,7 +253,9 @@ export default {
             status: 'add',
             currRow: {},
             pageNo: 1,
-            pageSize: 20
+            pageSize: 20,
+            treeKey: '',
+            count: 0
         };
     },
     mounted() {
@@ -280,6 +287,7 @@ export default {
                 if (this.tableData.length > 0) {
                     this.currRow = this.tableData[0];
                 }
+                this.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -311,7 +319,7 @@ export default {
         async remove(node, data) {
             try {
                 let res = await treeDel({id: data.id});
-                this.search;
+                this.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -319,6 +327,10 @@ export default {
                     type: 'error'
                 })
             }
+        },
+        // 刷新key值，重新渲染tree
+        renderTree() {
+            this.treeKey = +new Date();
         },
         async loadNode(node, resolve) {
             if (node.level === 0) {
@@ -338,7 +350,7 @@ export default {
                 this.titleDialog = '新增字典';
                 this.addParam = {};
                 if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.bizLineList[0].id;
+                    this.addParam.bizLineId = this.param.bizLineId;
                 }
             }
             else {
@@ -349,6 +361,7 @@ export default {
             this.dialogVisible = true;
         },
         showTreeDialog(status, row) {
+            this.count++;
             if (isEmptyObj(this.currRow)) {
                 this.$message({
                     message: '请选择一项字典',
@@ -362,9 +375,7 @@ export default {
                 this.addTreeParam = {
                     parentId: -1
                 };
-                if (this.bizLineList.length > 0) {
-                    this.addTreeParam.bizLineId = this.bizLineList[0].id;
-                }
+                this.addTreeParam.bizLineId = this.param.bizLineId;
             }
             else {
                 this.treeStatus = 'edit';
@@ -385,8 +396,29 @@ export default {
         },
         async treeSave() {
             this.addTreeParam.dictionaryId = this.currRow.id;
+            if (this.treeStatus === 'add') {
+                this.addTree();
+            }
+            else {
+                this.editTree();
+            }
+        },
+        async addTree() {
             try {
                 let res = await treeAdd(this.addTreeParam);
+                this.dialogTreeVisible = false;
+                this.search();
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '新增失败！',
+                    type: 'error'
+                })
+            }
+        },
+        async editTree() {
+            try {
+                let res = await treeEdit(this.addTreeParam);
                 this.dialogTreeVisible = false;
                 this.search();
             }

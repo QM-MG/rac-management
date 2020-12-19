@@ -11,18 +11,19 @@ const axiosIns = axios.create({
 })
 axiosIns.interceptors.response.use(
     response => { //成功请求到数据
-      if (+response.data.status === 0) {
+      if (response && response.data && +response.data.status === 0) {
         return response.data;
       } else {
-        return Promise.reject(response.data.msg)
+        return Promise.reject('系统错误，请稍后重试！')
       }
     },
     error => { //响应错误处理
-      Message({
-        message: '系统错误，请稍后重试！',
-        type: 'error'
-      })
-      // return Promise.reject(error)
+      // console.log(error)
+      // Message({
+      //   message: '系统错误，请稍后重试！',
+      //   type: 'error'
+      // })
+      return Promise.reject(error)
     }
   );
 export default axiosIns;

@@ -25,3 +25,7 @@ export function userToRoleSave(param) {
 export function userToDimensionAuthSave(param) {
     return axiosIns.post(url.USER_GRANTAUTH_SAVE, param); 
 }
+// 用户已绑定节点
+export function userToDimension(param) {
+    return axiosIns.post(url.USER_TO_DIMENSION, param); 
+}

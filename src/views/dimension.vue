@@ -2,7 +2,7 @@
     <div class="dimension">
         <div class="dimension-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -22,6 +22,7 @@
                 <el-table
                     :data="tableData"
                     @row-click="rowClick"
+                    highlight-current-row
                     style="width: 100%">
                     <el-table-column
                         prop="enName"
@@ -44,12 +45,14 @@
                     <el-table-column
                         label="操作">
                         <template slot-scope="scope">
-                            <el-button @click="showDialog('edit', scope.row)" type="text">
-                                编辑
-                            </el-button>
-                            <el-button @click="del(scope.row)" type="text">
-                                删除
-                            </el-button>
+                            <span>
+                                <el-button @click="showDialog('edit', scope.row)" type="text">
+                                    编辑
+                                </el-button>
+                                <el-button @click="del(scope.row)" type="text">
+                                    删除
+                                </el-button>
+                            </span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -61,7 +64,7 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="10" :offset="2"  class="content-border">
+            <el-col :span="11" :offset="1"  class="content-border">
                 <div class="content-title">
                     <span>维度节点树</span>
                     <el-button class="dimension-add" type="success" @click="showTreeDialog('add')" size="mini">新增</el-button>
@@ -77,7 +80,7 @@
                     @node-click="nodeCheck">
                     <span class="custom-tree-node" slot-scope="{ node, data }">
                         <span>{{ node.label }}</span>
-                        <span>
+                        <span  style="margin-left: 10px;">
                         <el-button
                             type="text"
                             size="mini"
@@ -116,7 +119,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="业务线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -154,7 +157,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
-                            <el-input v-model="addTreeParam.enName" size="mini" :disabled="status=='edit'"></el-input>
+                            <el-input v-model="addTreeParam.enName" size="mini" :disabled="treeStatus=='edit'"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -166,7 +169,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="业务线">
-                            <el-select v-model="addTreeParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                            <el-select v-model="addTreeParam.bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -179,6 +182,7 @@
                     <el-col :span="12">
                         <el-form-item label="维度节点类型">
                             <el-cascader
+                                :key="count"
                                 v-model="parentIdList"
                                 :props="funcProps"
                                 size="mini"
@@ -191,6 +195,7 @@
                     <el-col :span="12">
                         <el-form-item label="父节点">
                             <el-cascader
+                                :key="count"
                                 v-model="parentOwnIdList"
                                 :props="funcOwnProps"
                                 size="mini"
@@ -202,8 +207,8 @@
                         <el-form-item label="状态">
                             <el-switch
                                 v-model="addTreeParam.status"
-                                active-value="0"
-                                inactive-value="1"
+                                :active-value="0"
+                                :inactive-value="1"
                                 active-text="启用"
                                 inactive-text="禁用">
                             </el-switch>
@@ -232,7 +237,7 @@ import {
     } from '@/api/dimension/index';
 import {findDictionaryTreeList} from '@/api/dictionary/index';
 import {searchBizLine} from '@/api/bizline/index';
-// import {searchDictionaryAll} from '@/api/dictionary/index';
+import {searchDictionaryAll} from '@/api/dictionary/index';
 
 export default {
     data() {
@@ -254,7 +259,7 @@ export default {
             addTreeParam: {
                 parentId: -1,
                 type: -1,
-                status: '1'
+                status: 0
             },
             dictionaryList: [],
             dialogVisible: false,
@@ -297,7 +302,8 @@ export default {
             treeStatus: 'add',
             currRow: {},
             pageNo: 1,
-            pageSize: 20
+            pageSize: 20,
+            count: 0
         };
     },
     mounted() {
@@ -346,6 +352,8 @@ export default {
                 if (this.tableData.length > 0) {
                     this.currRow = this.tableData[0];
                 }
+                this.renderTree();
+                this.searchDictionaryAll();
             }
             catch (e) {
                 this.$message({
@@ -361,7 +369,7 @@ export default {
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
                     this.search();
-                    // this.searchDictionaryAll();
+                    this.searchDictionaryAll();
                 }
             }
             catch (e) {
@@ -374,8 +382,7 @@ export default {
         async searchDictionaryAll() {
             try {
                 let res = await searchDictionaryAll(this.param);
-                let dictionaryList = res.data || [];
-                return dictionaryList;
+                this.dictionaryList = res.data || [];
             }
             catch (e) {
                 this.$message({
@@ -409,7 +416,7 @@ export default {
                 this.titleDialog = '新增维度管理';
                 this.addParam = {};
                 if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.bizLineList[0].id;
+                    this.addParam.bizLineId = this.param.bizLineId;
                 }
             }
             else {
@@ -420,21 +427,26 @@ export default {
             this.dialogVisible = true;
         },
         showTreeDialog(status, row) {
-            console.log(row)
+            this.count++;
+            this.parentOwnIdList = [];
+            this.parentIdList = [];
             if (status === 'add') {
                 this.treeStatus = 'add';
                 this.titleDialog = '新增维度节点';
                 this.addTreeParam = {
-                    parentId: -1
+                    parentId: -1,
+                    status: 0,
+                    dimensionId: this.currRow.id
                 };
                 if (this.bizLineList.length > 0) {
-                    this.addTreeParam.bizLineId = this.bizLineList[0].id;
+                    this.addTreeParam.bizLineId = this.param.bizLineId;
                 }
             }
             else {
                 this.treeStatus = 'edit';
                 this.addTreeParam = row;
                 this.parentIdList = [row.type];
+                console.log(this.parentIdList)
                 this.pparentOwnIdList = [row.parentId]
                 this.titleDialog = '编辑维度节点';
             }
@@ -462,21 +474,7 @@ export default {
                 })
             }
         },
-        async treeSave() {
-            this.addTreeParam.dimensionId = this.currRow.id;
-            try {
-                let res = await treeAdd(this.addTreeParam);
-                this.dialogTreeVisible = false;
-                this.renderTree();
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '新增失败！',
-                    type: 'error'
-                })
-            }
-        },
-        async edit(row) {
+        async edit() {
             try {
                 let res = await edit(this.addParam);
                 this.dialogVisible = false;
@@ -499,6 +497,7 @@ export default {
                     type: 'success'
                 })
                 this.search();
+                this.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -540,6 +539,7 @@ export default {
         async remove(node, data) {
             try {
                 let res = await treeDel({id: data.id});
+                this.renderTree();
                 this.search;
             }
             catch (e) {
@@ -555,7 +555,6 @@ export default {
                 return resolve(list);
             }
             else{
-                console.log(2)
                 let list = await this.findFuncTree(node.data.id);
                 return resolve(list);
             }
@@ -567,6 +566,41 @@ export default {
         // 点击树
         nodeCheck(node) {
             this.currNode = node;
+        },
+        treeSave() {
+            if (this.treeStatus === 'add') {
+                this.addTree();
+            }
+            else {
+                this.editTree();
+            }
+            this.addTreeParam.dimensionId = this.currRow.id;
+        },
+        async addTree() {
+            try {
+                let res = await treeAdd(this.addTreeParam);
+                this.dialogTreeVisible = false;
+                this.renderTree();
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '新增失败！',
+                    type: 'error'
+                })
+            }
+        },
+        async editTree() {
+            try {
+                let res = await treeEdit(this.addTreeParam);
+                this.dialogTreeVisible = false;
+                this.renderTree();
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '新增失败！',
+                    type: 'error'
+                })
+            }
         },
         reset() {
             this.pageSize = 20;

@@ -2,7 +2,7 @@
     <div class="auth">
         <div class="auth-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="changeBiz">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -15,7 +15,10 @@
             <el-button type="success" class="auth-add" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
         <el-row class="content-wrap">
-            <el-col :span="14">
+            <el-col :span="14" class="content-border">
+                <div class="content-title">
+                    <span>角色列表</span>
+                </div>
                 <el-table
                     :data="tableData"
                     highlight-current-row
@@ -55,13 +58,14 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="8"  :offset="2">
-                <div class="tree-title">
-                    <p>功能列表</p>
-                    <el-button type="primary" @click="saveBind" size="mini" class="save-btn">保存</el-button>
+            <el-col :span="8"  :offset="2"  class="content-border">
+                <div class="content-title">
+                    <span>功能列表</span>
+                    <el-button type="primary" @click="saveBind" size="mini" class="btn-right">保存</el-button>
                 </div>
                 <el-tree
                     class="tree-wrap"
+                    :key="param.bizLineId"
                     v-if="param.bizLineId"
                     :props="props"
                     node-key="id"
@@ -94,7 +98,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="业务线">
-                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                            <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
                                 v-for="item in bizLineList"
                                 :key="item.id"
@@ -181,6 +185,9 @@ export default {
                 })
             }
         },
+        changeBiz() {
+            this.search();
+        },
         async findFuncTree(parentId) {
             let param = {
                 bizLineId: this.param.bizLineId,
@@ -205,7 +212,7 @@ export default {
                 return resolve(list);
             }
             else{
-                let list = await this.findFuncTree(node.id);
+                let list = await this.findFuncTree(node.data.id);
                 return resolve(list);
             }
         },
@@ -214,9 +221,7 @@ export default {
                 this.status = 'add';
                 this.titleDialog = '新增角色';
                 this.addParam = {};
-                if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.bizLineList[0].id;
-                }
+                this.addParam.bizLineId = this.param.bizLineId;
             }
             else {
                 this.status = 'edit';
@@ -279,8 +284,10 @@ export default {
             }
         },
         handleRowChange(row) {
-            this.saveParam.roleId = row.id;
-            this.findRoleToFunc();
+            if (row && row.id) {
+                this.saveParam.roleId = row.id;
+                this.findRoleToFunc();
+            }
         },
         // 查询角色已绑定的功能
         async findRoleToFunc() {
