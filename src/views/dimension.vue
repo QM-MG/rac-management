@@ -10,14 +10,23 @@
                 :value="item.id">
                 </el-option>
             </el-select>
-            <el-button type="success" @click="search" size="mini">搜索</el-button>
-            <el-button type="warning" @click="reset" size="mini">重置</el-button>
+            <el-button type="success" @click="search" size="mini">
+                <i class="el-icon-search"></i>
+                <span>搜索</span>
+            </el-button>
+            <el-button type="warning" @click="reset" size="mini">
+                <i class="el-icon-refresh-left"></i>
+                <span>重置</span>
+            </el-button>
+            <el-button type="primary" @click="showDialog('add')" size="mini">
+                <i class="el-icon-plus"></i>
+                <span>新增</span>
+            </el-button>
         </div>
         <el-row class="content-wrap">
-            <el-col :span="12" class="content-border">
+            <el-col :span="14" class="content-border">
                 <div class="content-title">
                     <span>维度列表</span>
-                    <el-button type="success" class="dimension-add" @click="showDialog('add')" size="mini">新增</el-button>
                 </div>
                 <el-table
                     :data="tableData"
@@ -35,24 +44,19 @@
                         >
                     </el-table-column>
                     <el-table-column
-                        prop="createTime"
-                        label="创建时间">
-                    </el-table-column>
-                    <el-table-column
                         prop="updateTime"
+                        width="200"
                         label="更新时间">
                     </el-table-column>
                     <el-table-column
                         label="操作">
                         <template slot-scope="scope">
-                            <span>
-                                <el-button @click="showDialog('edit', scope.row)" type="text">
-                                    编辑
-                                </el-button>
-                                <el-button @click="del(scope.row)" type="text">
-                                    删除
-                                </el-button>
-                            </span>
+                            <el-button @click="showDialog('edit', scope.row)" class="el-button el-button--primary is-circle  el-button--mini" type="button">
+                                <i class="el-icon-edit"></i>
+                            </el-button>
+                            <el-button @click="del(scope.row)" class="el-button el-button--danger is-circle el-button--mini" type="button">
+                                <i class="el-icon-delete"></i>
+                            </el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -64,10 +68,13 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="11" :offset="1"  class="content-border">
+            <el-col :span="9" :offset="1"  class="content-border">
                 <div class="content-title">
-                    <span>维度节点树</span>
-                    <el-button class="dimension-add" type="success" @click="showTreeDialog('add')" size="mini">新增</el-button>
+                    <span>定义维度节点</span>
+                    <el-button type="primary" class="btn-right" @click="showTreeDialog('add')" size="mini">
+                        <i class="el-icon-plus"></i>
+                        <span>新增</span>
+                    </el-button>
                 </div>
                 <el-tree
                     v-if="this.param.bizLineId && currRow.nodeTypeId"
@@ -75,6 +82,7 @@
                     :props="props"
                     :load="loadNode"
                     :key="treeKey"
+                    icon-class="el-icon-caret-right tree-node-icon"
                     lazy
                     ref="tree"
                     @node-click="nodeCheck">
@@ -85,13 +93,13 @@
                             type="text"
                             size="mini"
                             @click="() => treeEdit(node, data)">
-                            编辑
+                            <i class="el-icon-edit"></i>
                         </el-button>
                         <el-button
                             type="text"
                             size="mini"
                             @click="() => remove(node, data)">
-                            删除
+                            <i class="el-icon-delete tree-del-icon"></i>
                         </el-button>
                         </span>
                     </span>
@@ -631,12 +639,22 @@ export default {
     .dimension-add {
         float: right;
     }
-    .tree-wrap {
+    .tree {
+        clear: both;
+        font-size: 14px;
         .content-title {
             float: left;
         }
         .tree-add {
             float: right;
+        }
+        .tree-node-icon {
+            font-weight: 900;
+            color:#3f9eff;
+        }
+        .tree-del-icon {
+            font-size: 12px;
+            color:#F56C6C;
         }
     }
 }
