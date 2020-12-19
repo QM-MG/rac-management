@@ -10,50 +10,66 @@
                 :value="item.id">
                 </el-option>
             </el-select>
-            <el-button type="success" @click="search" size="mini">搜索</el-button>
-            <el-button type="warning" @click="reset" size="mini">重置</el-button>
-            <el-button type="success" class="property-add" @click="showDialog('add')" size="mini">新增</el-button>
+            <el-button type="success" @click="search" size="mini">
+                <i class="el-icon-search"></i>
+                <span>搜索</span>
+            </el-button>
+            <el-button type="warning" @click="reset" size="mini">
+                <i class="el-icon-refresh-left"></i>
+                <span>重置</span>
+            </el-button>
+            <el-button type="primary" @click="showDialog('add')" size="mini">
+                <i class="el-icon-plus"></i>
+                <span>新增</span>
+            </el-button>
         </div>
-         <el-table
-            :data="tableData"
-            style="width: 100%">
-            <el-table-column
-                prop="enName"
-                label="英文名"
-                width="180">
-            </el-table-column>
-            <el-table-column
-                prop="cnName"
-                label="中文"
-                width="180">
-            </el-table-column>
-            <el-table-column
-                prop="createTime"
-                label="创建时间">
-            </el-table-column>
-            <el-table-column
-                prop="updateTime"
-                label="更新时间">
-            </el-table-column>
-            <el-table-column
-                label="操作">
-                <template slot-scope="scope">
-                    <el-button @click="showDialog('edit', scope.row)" type="text">
-                        编辑
-                    </el-button>
-                    <el-button @click="del(scope.row)" type="text">
-                        删除
-                    </el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <pagination
-            :totalCount="totalCount"
-            :pageNo="pageNo"
-            @handleSizeChange="handleSizeChange"
-            @handleCurrentChange="handleCurrentChange"
-            >
-        </pagination>
+        <el-row class="content-wrap">
+            <el-col class="content-border">
+                <div class="content-title">
+                    <span>扩展属性列表</span>
+                </div>
+                <el-table
+                    :data="tableData"
+                    style="width: 100%">
+                    <el-table-column
+                        prop="enName"
+                        label="英文名"
+                        width="180">
+                    </el-table-column>
+                    <el-table-column
+                        prop="cnName"
+                        label="中文"
+                        width="180">
+                    </el-table-column>
+                    <el-table-column
+                        prop="createTime"
+                        label="创建时间">
+                    </el-table-column>
+                    <el-table-column
+                        prop="updateTime"
+                        label="更新时间">
+                    </el-table-column>
+                    <el-table-column
+                        label="操作">
+                        <template slot-scope="scope">
+                            <el-button @click="showDialog('edit', scope.row)" class="el-button el-button--primary is-circle  el-button--mini" type="button">
+                                <i class="el-icon-edit"></i>
+                            </el-button>
+                            <el-button @click="del(scope.row)" class="el-button el-button--danger is-circle el-button--mini" type="button">
+                                <i class="el-icon-delete"></i>
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <pagination
+                    :totalCount="totalCount"
+                    :pageNo="pageNo"
+                    @handleSizeChange="handleSizeChange"
+                    @handleCurrentChange="handleCurrentChange"
+                    >
+                </pagination>
+            </el-col>
+        </el-row>
         <el-dialog
             :title="titleDialog"
             :visible.sync="dialogVisible"

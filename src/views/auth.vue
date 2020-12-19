@@ -10,12 +10,21 @@
                 :value="item.id">
                 </el-option>
             </el-select>
-            <el-button type="success" @click="search" size="mini">搜索</el-button>
-            <el-button type="warning" @click="reset" size="mini">重置</el-button>
-            <el-button type="success" class="auth-add" @click="showDialog('add')" size="mini">新增</el-button>
+            <el-button type="success" @click="search" size="mini">
+                <i class="el-icon-search"></i>
+                <span>搜索</span>
+            </el-button>
+            <el-button type="warning" @click="reset" size="mini">
+                <i class="el-icon-refresh-left"></i>
+                <span>重置</span>
+            </el-button>
+            <el-button type="primary" @click="showDialog('add')" size="mini">
+                <i class="el-icon-plus"></i>
+                <span>新增</span>
+            </el-button>
         </div>
         <el-row class="content-wrap">
-            <el-col :span="14" class="content-border">
+            <el-col :span="16" class="content-border">
                 <div class="content-title">
                     <span>角色列表</span>
                 </div>
@@ -41,11 +50,11 @@
                     <el-table-column
                         label="操作">
                         <template slot-scope="scope">
-                            <el-button @click="showDialog('edit', scope.row)" type="text">
-                                编辑
+                            <el-button @click="showDialog('edit', scope.row)" class="el-button el-button--primary is-circle  el-button--mini" type="button">
+                                <i class="el-icon-edit"></i>
                             </el-button>
-                            <el-button @click="del(scope.row)" type="text">
-                                删除
+                            <el-button @click="del(scope.row)" class="el-button el-button--danger is-circle el-button--mini" type="button">
+                                <i class="el-icon-delete"></i>
                             </el-button>
                         </template>
                     </el-table-column>
@@ -58,17 +67,18 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="8"  :offset="2"  class="content-border">
+            <el-col :span="7"  :offset="1"  class="content-border">
                 <div class="content-title">
-                    <span>功能列表</span>
-                    <el-button type="primary" @click="saveBind" size="mini" class="btn-right">保存</el-button>
+                    <span>关联功能</span>
+                    <el-button type="primary" @click="saveBind" size="mini" class="btn-right"><i class="el-icon-check"></i><span>保存</span></el-button>
                 </div>
                 <el-tree
-                    class="tree-wrap"
+                    class="tree"
                     :key="param.bizLineId"
                     v-if="param.bizLineId"
                     :props="props"
                     node-key="id"
+                    icon-class="tree-node-icon"
                     ref="tree"
                     :load="loadNode"
                     lazy
@@ -358,6 +368,13 @@ export default {
     }
     .auth-add {
         float: right;
+    }
+    .tree {
+        clear: both;
+        font-size: 14px;
+    }
+    .tree-node-icon {
+        font-weight: 900;
     }
 }
 </style>

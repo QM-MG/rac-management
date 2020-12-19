@@ -11,6 +11,10 @@
             background-color="#304156"
             text-color="#fff"
             active-text-color="#ffd04b">
+            <el-menu-item class="sidebar-logo-container">
+                <img src="../assets/img/logo_icon.png" class="sidebar-logo">
+                <span slot="title">Rac权限管理系统</span>
+            </el-menu-item>
             <el-submenu index="1">
                 <template slot="title">
                     <i class="el-icon-location"></i>
@@ -76,6 +80,11 @@ export default {
 .left-menu {
     .el-menu {
         border-right: 0;
+    }
+    .sidebar-logo {
+        width:30px;
+        height:30px;
+        padding-right: 10px;
     }
 }
 </style>

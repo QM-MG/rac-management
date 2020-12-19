@@ -9,7 +9,7 @@
                 :value="item.id">
                 </el-option>
             </el-select>
-            <el-button type="success" class="func-add" @click="showDialog('add')" size="mini">新增</el-button>
+            <el-button type="primary" @click="showDialog('add')" size="mini">新增</el-button>
         </div>
         <el-row style="clear:both;">
             <el-col :span="11" :offset="1" class="content-wrap">
