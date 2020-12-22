@@ -25,7 +25,8 @@ export const ROLE_EDIT = './role/edit';
 export const ROLE_DEL = './role/delete';
 export const ROLE_LIST_ALL = './role/listByBizLineId';
 export const ROLE_TO_FUNC = './role/listFuncId'; // 角色已绑定的功能id
-export const ROLE_TO_FUNC_SAVE = './role/bindFuncs'; // 角色绑定功能保存接口
+export const ROLE_TO_FUNC_SAVE = './role/bindAuth'; // 角色绑定功能保存接口
+export const ROLE_TO_FUNC_DEL = './role/unbindAuth'; // 角色绑定功能保存接口
 export const ROLE_TO_FUNC_LIST = './role/listAuth'; // 角色 授权列表
 
 export const FUNC_LIST = './func/listPage';

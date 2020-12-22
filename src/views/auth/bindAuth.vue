@@ -15,16 +15,12 @@
             </el-table-column>
             <el-table-column
                 prop="strategyName"
-                label="策略名称"
-            >
+                label="策略名称">
             </el-table-column>
             <el-table-column
                 width="120"
                 label="操作">
                 <template slot-scope="scope">
-                    <el-button @click="showDialog('edit', scope.row)" class="el-button el-button--primary is-circle  el-button--mini" type="button">
-                        <i class="el-icon-edit"></i>
-                    </el-button>
                     <el-button @click="del(scope.row)" class="el-button el-button--danger is-circle el-button--mini" type="button">
                         <i class="el-icon-delete"></i>
                     </el-button>
@@ -78,7 +74,7 @@
     </div>
 </template>
 <script>
-import {saveBind,roleToFunc,roleFuncList} from '@/api/auth/index';
+import {saveBind,saveUnbind,roleToFunc,roleFuncList} from '@/api/auth/index';
 import {findFuncTree} from '@/api/func/index';
 import {searchStrategyAll} from '@/api/strategy/index';
 import pagination from '@/components/pagination';
@@ -238,6 +234,28 @@ export default {
             catch (e) {
                 this.$message({
                     message: e || '保存失败！',
+                    type: 'error'
+                })
+            }
+        },
+        async del(row) {
+            let param = {
+                bizLineId: this.bizLineId,
+                id: this.currRow.id,
+                strategyId: row.strategyId,
+                funcIds: [row.funcIds]
+            }
+            try {
+                let res = await saveUnbind(param);
+                this.$message({
+                    message: '删除成功！',
+                    type: 'success'
+                })
+                this.searchData();
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '删除失败！',
                     type: 'error'
                 })
             }

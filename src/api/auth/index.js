@@ -16,6 +16,9 @@ export function del(param) {
 export function saveBind(param) {
     return axiosIns.post(url.ROLE_TO_FUNC_SAVE, param); 
 }
+export function saveUnbind(param) {
+    return axiosIns.post(url.ROLE_TO_FUNC_DEL, param); 
+}
 export function roleToFunc(param) {
     return axiosIns.post(url.ROLE_TO_FUNC, param); 
 }
