@@ -75,7 +75,7 @@
                     </el-button>
                 </div>
                 <el-tree
-                    v-if="this.param.bizLineId && currRow.id"
+                    v-if="this.param.bizLineId && currRow && currRow.id"
                     :props="props"
                     :key = "treeKey"
                     :load="loadNode"
@@ -260,7 +260,7 @@ export default {
             },
             totalCount: 0,
             status: 'add',
-            currRow: {},
+            currRow: null,
             pageNo: 1,
             pageSize: 20,
             treeKey: '',
@@ -293,7 +293,7 @@ export default {
                 let data = res.data || {};
                 this.totalCount = data.totalCount;
                 this.tableData = data.dataList || [];
-                if (this.tableData.length > 0) {
+                if (this.tableData.length > 0  && !this.currRow) {
                     this.currRow = this.tableData[0];
                 }
                 this.renderTree();

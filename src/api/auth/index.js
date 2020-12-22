@@ -22,3 +22,6 @@ export function roleToFunc(param) {
 export function roleListAll(param) {
     return axiosIns.post(url.ROLE_LIST_ALL, param); 
 }
+export function roleFuncList(param) {
+    return axiosIns.post(url.ROLE_TO_FUNC_LIST, param); 
+}

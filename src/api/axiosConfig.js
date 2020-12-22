@@ -14,7 +14,7 @@ axiosIns.interceptors.response.use(
       if (response && response.data && +response.data.status === 0) {
         return response.data;
       } else {
-        return Promise.reject('系统错误，请稍后重试！')
+        return Promise.reject(response.data.msg)
       }
     },
     error => { //响应错误处理

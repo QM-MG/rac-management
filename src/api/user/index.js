@@ -29,3 +29,15 @@ export function userToDimensionAuthSave(param) {
 export function userToDimension(param) {
     return axiosIns.post(url.USER_TO_DIMENSION, param); 
 }
+// 用户绑定角色保存
+export function userToDimensionSave(param) {
+    return axiosIns.post(url.USER_TO_DIMENSION_SAVE, param); 
+}
+// 用户查关联的属性
+export function userToPropertyList(param) {
+    return axiosIns.post(url.USER_TO_PROPERTY_LIST, param); 
+}
+// 用户绑定角色保存
+export function userToPropertySave(param) {
+    return axiosIns.post(url.USER_TO_PROPERTY_SAVE, param); 
+}

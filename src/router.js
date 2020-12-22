@@ -3,13 +3,14 @@ import Router from 'vue-router'
 import login from './views/login.vue'
 import home from './views/home.vue'
 import bizline from './views/bizline.vue'
-import user from './views/user.vue'
-import auth from './views/auth.vue'
-import func from './views/func.vue'
+import user from './views/user/index.vue'
+import auth from './views/auth/index.vue'
+import func from './views/func/index.vue'
 import dictionary from './views/dictionary.vue'
 import property from './views/property.vue'
 import bizentity from './views/bizentity.vue'
 import dimension from './views/dimension.vue'
+import strategy from './views/strategy.vue'
 
 Vue.use(Router)
 
@@ -89,6 +90,14 @@ export default new Router({
           component: dimension,
           meta: {
             title: '维度管理'
+          }
+        },
+        {
+          path: '/strategy',
+          name: 'strategy',
+          component: strategy,
+          meta: {
+            title: '策略管理'
           }
         },
       ]

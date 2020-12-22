@@ -16,3 +16,6 @@ export function del(param) {
 export function findFuncTree(param) {
     return axiosIns.post(url.FUNC_TREE, param); 
 }
+export function findFuncAllTree(param) {
+    return axiosIns.post(url.FUNC_ALL_TREE, param); 
+}

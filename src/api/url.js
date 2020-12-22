@@ -9,9 +9,14 @@ export const USER_ADD = './user/create';
 export const USER_EDIT = './user/edit';
 export const USER_DEL = './user/delete';
 export const USER_TO_ROLE = './user/listUserRoleId'; // 用户已绑定的角色
-export const USER_TO_ROLE_SAVE = './user/bindRoles'; // 用户绑定角色保存
-export const USER_GRANTAUTH_SAVE = './user/grantAuth'; // 用户绑定角色保存
+export const USER_TO_ROLE_SAVE = './user/grantRoles'; // 用户绑定角色保存
+export const USER_GRANTAUTH_SAVE = './user/grantAuth'; // 用户绑定角色和维度保存
 export const USER_TO_DIMENSION = './user/listUserDimensionNodes'; // 用户已绑定维度
+export const USER_TO_DIMENSION_SAVE = './user/grantDimensionNodes'; // 用户绑定角色保存
+export const USER_TO_PROPERTY_LIST = './user/listUserExtProperty'; // 用户下的所有属性
+export const USER_TO_PROPERTY_SAVE = './user/addExtProperty'; // 用户下的所有属性
+
+
 // export const USER_BIND_DIMENSION = './user/bindDimensionNodes';
 
 export const ROLE_LIST = './role/listPage';
@@ -21,12 +26,14 @@ export const ROLE_DEL = './role/delete';
 export const ROLE_LIST_ALL = './role/listByBizLineId';
 export const ROLE_TO_FUNC = './role/listFuncId'; // 角色已绑定的功能id
 export const ROLE_TO_FUNC_SAVE = './role/bindFuncs'; // 角色绑定功能保存接口
+export const ROLE_TO_FUNC_LIST = './role/listAuth'; // 角色 授权列表
 
 export const FUNC_LIST = './func/listPage';
 export const FUNC_ADD = './func/create';
 export const FUNC_EDIT = './func/edit';
 export const FUNC_DEL = './func/delete';
 export const FUNC_TREE= './func/listByParentId';
+export const FUNC_ALL_TREE= './func/listByBizLineId';
 
 export const DICTIONARY_LIST = './dictionary/listPage';
 export const DICTIONARY_ADD = './dictionary/create';
@@ -38,6 +45,7 @@ export const PROPERTY_LIST = './property/listPage';
 export const ROPERTY_ADD = './property/create';
 export const ROPERTY_EDIT = './property/edit';
 export const ROPERTY_DEL = './property/delete';
+export const ROPERTY_TO_ENTITY= './property/listByBizEntityEnName';
 
 export const BIZENTITY_LIST = './bizentity/listPage';
 export const BIZENTITY_ADD = './bizentity/create';
@@ -60,6 +68,13 @@ export const DICTIONARY_TREE_LIST = './dictionary/node/listByParentId';
 export const DICTIONARY_TREE_CREATE = './dictionary/node/create';
 export const DICTIONARY_TREE_EDIT = './dictionary/node/edit';
 export const DICTIONARY_TREE_DEL = './dictionary/node/delete';
+
+export const STRATEGY_LIST = './strategy/listPage';
+export const STRATEGY_CREATE = './strategy/create';
+export const STRATEGY_EDIT = './strategy/edit';
+export const STRATEGY_DEL = './strategy/delete';
+export const STRATEGY_LIST_ALL = './strategy/listByBizLineId';
+
 
 
 

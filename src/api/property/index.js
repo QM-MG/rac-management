@@ -13,3 +13,6 @@ export function edit(param) {
 export function del(param) {
     return axiosIns.post(url.ROPERTY_DEL, param); 
 }
+export function propertyToEntity(param) {
+    return axiosIns.post(url.ROPERTY_TO_ENTITY, param); 
+}

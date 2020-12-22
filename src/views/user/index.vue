@@ -1,8 +1,8 @@
 <template>
-    <div class="auth">
-        <div class="auth-search">
+    <div class="user">
+        <div class="user-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="changeBiz">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -24,9 +24,9 @@
             </el-button>
         </div>
         <el-row class="content-wrap">
-            <el-col :span="16" class="content-border">
+            <el-col :span="12" class="content-border">
                 <div class="content-title">
-                    <span>角色列表</span>
+                    <span>用户列表</span>
                 </div>
                 <el-table
                     :data="tableData"
@@ -41,8 +41,29 @@
                     <el-table-column
                         prop="cnName"
                         label="中文"
-                    >
+                        >
                     </el-table-column>
+                    <el-table-column
+                        width="50"
+                        label="性别"
+                        >
+                        <template slot-scope="scope">
+                            <span v-show="scope.row.gender == 0">男</span>
+                            <span v-show="scope.row.gender == 1">女</span>
+                        </template>
+                    </el-table-column>
+                    <!-- <el-table-column
+                        prop="email"
+                        label="邮箱">
+                    </el-table-column> -->
+                    <el-table-column
+                        prop="mobilePhone"
+                        label="手机号">
+                    </el-table-column>
+                    <!-- <el-table-column
+                        prop="remark"
+                        label="备注">
+                    </el-table-column> -->
                     <el-table-column
                         prop="updateTime"
                         label="更新时间">
@@ -67,24 +88,11 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="7"  :offset="1"  class="content-border">
-                <div class="content-title">
-                    <span>关联功能</span>
-                    <el-button type="primary" @click="saveBind" size="mini" class="btn-right"><i class="el-icon-check"></i><span>保存</span></el-button>
-                </div>
-                <el-tree
-                    class="tree"
-                    :key="param.bizLineId"
-                    v-if="param.bizLineId"
-                    :props="props"
-                    node-key="id"
-                    icon-class="tree-node-icon"
-                    ref="tree"
-                    :load="loadNode"
-                    lazy
-                    show-checkbox>
-                </el-tree>
-                
+            <el-col :span="11"  :offset="1" class="content-border">
+                <bind-user-tab
+                :bizLineId='param.bizLineId'
+                :currRow="currRow"
+                ></bind-user-tab>
             </el-col>
         </el-row>
         <el-dialog
@@ -107,6 +115,26 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
+                        <el-form-item label="性别">
+                            <template>
+                                <el-radio v-model="addParam.gender" :label="0">男</el-radio>
+                                <el-radio v-model="addParam.gender" :label="1">女</el-radio>
+                            </template>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="email">
+                            <el-input v-model="addParam.email" size="mini"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="手机号">
+                            <el-input v-model="addParam.mobilePhone" size="mini"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
                         <el-form-item label="业务线">
                             <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" disabled>
                                 <el-option
@@ -119,20 +147,46 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="备注">
+                            <el-input v-model="addParam.remark" size="mini"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <!-- 0 启用 1禁用 -->
+                        <el-form-item label="状态">
+                            <el-switch
+                                v-model="addParam.status"
+                                :active-value="0"
+                                :inactive-value="1"
+                                active-text="启用"
+                                inactive-text="禁用">
+                            </el-switch>
+                        </el-form-item>
+
+                    </el-col>
+                </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false" size="mini">取 消</el-button>
                 <el-button type="primary" @click="save" size="mini">确 定</el-button>
             </span>
         </el-dialog>
-
     </div>
 </template>
 <script>
 import pagination from '@/components/pagination';
-import {searchAuthList,edit,del,add,saveBind,roleToFunc} from '@/api/auth/index';
-import {findFuncTree} from '@/api/func/index';
+import {
+    searchUserList,
+    edit,
+    del,
+    add,
+    userToDimensionAuthSave,
+} from '@/api/user/index';
 import {searchBizLine} from '@/api/bizline/index';
+import bindUserTab from './bindUserTab.vue';
+
 export default {
     data() {
         return {
@@ -141,23 +195,22 @@ export default {
                 searchVal: '',
                 bizLineId: ''
             },
-            props: {
-                label: 'cnName',
-                children: 'children'
-            },
-            status: 'add',
             addParam: {
+                gender: 0,
+                status: 0
             },
+            currRow: {},
+            status: 'add',
             dialogVisible: false,
             bizLineList: [],
             totalCount: 0,
             pageNo: 1,
             pageSize: 20,
-            titleDialog: '新增角色',
-            saveParam: {}
+            titleDialog: '用户新增',
+            count: 0,
         };
     },
-    components: {pagination},
+    components: {pagination, bindUserTab},
     mounted() {
         this.searchbizLineList();
     },
@@ -166,7 +219,7 @@ export default {
             this.param.pageNo = this.pageNo;
             this.param.pageSize = this.pageSize;
             try {
-                let res = await searchAuthList(this.param);
+                let res = await searchUserList(this.param);
                 let data = res.data || {};
                 this.totalCount = data.totalCount;
                 this.tableData = data.dataList || [];
@@ -195,48 +248,21 @@ export default {
                 })
             }
         },
-        changeBiz() {
-            this.search();
-        },
-        async findFuncTree(parentId) {
-            let param = {
-                bizLineId: this.param.bizLineId,
-                parentId
-            }
-            try {
-                let res = await findFuncTree(param);
-                let treeList = res.data || [];
-                return treeList
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '查询失败！',
-                    type: 'error'
-                })
-            }
-        },
-        // 功能树
-        async loadNode(node, resolve) {
-            if (node.level === 0) {
-                let list = await this.findFuncTree(-1);
-                return resolve(list);
-            }
-            else{
-                let list = await this.findFuncTree(node.data.id);
-                return resolve(list);
-            }
-        },
         showDialog(status, row) {
             if (status === 'add') {
                 this.status = 'add';
-                this.titleDialog = '新增角色';
-                this.addParam = {};
-                this.addParam.bizLineId = this.param.bizLineId;
+                this.addParam = {
+                    status: 0
+                };
+                this.titleDialog = '用户新增';
+                if (this.bizLineList.length > 0) {
+                    this.addParam.bizLineId = this.param.bizLineId
+                }
             }
             else {
                 this.status = 'edit';
-                this.titleDialog = '编辑角色';
                 this.addParam = row;
+                this.titleDialog = '用户编辑';
             }
             this.dialogVisible = true;
         },
@@ -266,6 +292,7 @@ export default {
             try {
                 let res = await edit(this.addParam);
                 this.dialogVisible = false;
+                this.search();
             }
             catch (e) {
                 this.$message({
@@ -294,36 +321,41 @@ export default {
             }
         },
         handleRowChange(row) {
-            if (row && row.id) {
-                this.saveParam.roleId = row.id;
-                this.findRoleToFunc();
-            }
-        },
-        // 查询角色已绑定的功能
-        async findRoleToFunc() {
-            try {
-                let res = await roleToFunc(this.saveParam);
-                let data = res.data || [];
-                this.$refs.tree.setCheckedKeys(data);
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '查询失败！',
-                    type: 'error'
-                })
-            }
+            this.currRow = row;
+            // if (row) {
+            //     this.saveParam.userId = row.id;
+            //     this.findUserToDomesion();
+            // }
         },
         async saveBind() {
-            if (!this.saveParam.roleId) {
+            if (!this.saveParam.userId) {
+                this.$message({
+                    message: '请选择用户！',
+                    type: 'warning'
+                })
+                return;
+            }
+            this.saveParam.roleIds = this.$refs.roleTree.getCheckedKeys();
+            if (!this.saveParam.roleIds) {
                 this.$message({
                     message: '请选择角色！',
                     type: 'warning'
                 })
                 return;
             }
-            this.saveParam.funcIds = this.$refs.tree.getCheckedKeys();
+            this.saveParam.dimensionNodeIds = []
+            this.dimensionChildActiveList.forEach(item => {
+                this.saveParam.dimensionNodeIds.push(item.id);
+            })
+            if (this.saveParam.dimensionNodeIds.length <= 0) {
+                this.$message({
+                    message: '请选择维度！',
+                    type: 'warning'
+                })
+                return;
+            }
             try {
-                let res = await saveBind(this.saveParam);
+                let res = await userToDimensionAuthSave(this.saveParam);
                 this.$message({
                     message: '保存成功！',
                     type: 'success'
@@ -353,28 +385,40 @@ export default {
         },
         handleCurrentChange(val) {
             this.pageNo = val;
-        },
+
+        }
     }
 };
 </script>
 
 <style lang="less">
-.auth {
-    .auth-search {
+.user {
+    .user-search {
         .el-input {
             width: 180px;
             margin-right: 10px;
         }
     }
-    .auth-add {
+    .user-add {
         float: right;
     }
-    .tree {
-        clear: both;
-        font-size: 14px;
+    .tree-title {
+        p {
+            float: left;
+            line-height: 36px;
+        }
+        .save-btn {
+            float: right;
+        }
     }
-    .tree-node-icon {
-        font-weight: 900;
+    .tree-wrap {
+        margin-top: 10px;
+    }
+    .child-text {
+        height: 25px;
+    }
+    .tag-wrap {
+        margin-bottom: 15px;
     }
 }
 </style>

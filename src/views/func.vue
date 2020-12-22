@@ -13,11 +13,12 @@
         </div>
         <el-row style="clear:both;">
             <el-col :span="11" :offset="1" class="content-wrap">
-                <p class="content-title">功能管理树</p>
+                <p class="content-title" @click="aaa">功能管理树</p>
                 <el-tree
                     v-if="this.bizLineId"
                     :props="props"
                     :key = "treeKey"
+                     node-key="id"
                     :load="loadNode"
                     lazy
                     ref="tree"
@@ -202,6 +203,11 @@ export default {
         }
     },
     methods: {
+        aaa() {
+            let node = this.$refs.tree.getNode(22); // 通过节点id找到对应树节点对象
+            node.data.cnName = 1111;
+            node.expand(); // 主动调用展开节点方法，重新查询该节点下的所有子节点 
+        },
         changeBiz(val) {
             this.bizLineId = val;
             this.currNode = {};

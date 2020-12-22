@@ -4,6 +4,9 @@
  * @return {Boolean}
  */
 export function isEmptyObj(obj) {
+    if (!obj) {
+        return;
+    }
     if (Object.keys(obj).length === 0) {
         return true
     }
