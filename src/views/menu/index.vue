@@ -1,7 +1,7 @@
 <template>
-    <div class="func">
+    <div class="menu">
         <!-- 切换产品线 -->
-        <div class="func-search">
+        <div class="menu-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
             <el-select v-model="bizLineId" placeholder="请选择" size="mini" @change="changeBiz">
                 <el-option
@@ -25,7 +25,7 @@
             </el-button>
         </div>
         <!-- 表格 -->
-        <div class="func-content">
+        <div class="menu-content">
             <tree-table
             :tableData="treeList"
             :bizLineId="bizLineId"
@@ -35,7 +35,7 @@
             </tree-table>
         </div>
         <!-- 新增或编辑弹框 -->
-        <func-change-dialog
+        <menu-change-dialog
         :bizLineId="bizLineId"
         :bizLineList="bizLineList"
         :dialogVisible="dialogVisible"
@@ -44,16 +44,15 @@
         :treeList="treeList"
         @changeDialgVis="changeDialgVis"
         @saveParam="saveParam">
-        </func-change-dialog>
+        </menu-change-dialog>
     </div>
 </template>
 <script>
-import {searchFuncList,edit,del,add, findFuncTree,findFuncAllTree} from '@/api/func/index';
+import {searchMenuList,edit,del,add, findMenuTree,findMenuAllTree} from '@/api/menu/index';
 import {searchBizLine} from '@/api/bizline/index';
 import {isEmptyObj} from '@/utils/index.js';
-// import treeTable from './treeTable.vue';
 import treeTable from '@/components/treeTable';
-import funcChangeDialog from './funcChangeDialog.vue';
+import menuChangeDialog from './menuChangeDialog.vue';
 
 export default {
     data() {
@@ -70,9 +69,17 @@ export default {
             }, {
                 label:'中文名',
                 props:'cnName'
+            },
+            {
+                label:'序号',
+                props:'seq'
+            }, 
+            {
+                label:'url',
+                props:'url'
             }, {
-                label:'功能url',
-                props:'content'
+                label:'层级',
+                props:'level'
             }, {
                 label:'更新时间',
                 props:'updateTime'
@@ -82,7 +89,7 @@ export default {
     },
     components: {
         treeTable,
-        funcChangeDialog
+        menuChangeDialog
     },
     mounted() {
         this.searchbizLineList();
@@ -96,7 +103,7 @@ export default {
         async search(parentId) {
             this.param.bizLineId = this.bizLineId;
             try {
-                let res = await findFuncAllTree(this.param);
+                let res = await findMenuAllTree(this.param);
                 this.treeList = res.data || [];
             }
             catch (e) {
@@ -124,13 +131,13 @@ export default {
             }
         },
         // 查功能树
-        async findFuncTree(parentId) {
+        async findMenuTree(parentId) {
             let param = {
                 bizLineId: this.bizLineId,
                 parentId
             }
             try {
-                let res = await findFuncTree(param);
+                let res = await findMenuTree(param);
                 let treeList = res.data || [];
                 return treeList
             }
@@ -240,14 +247,14 @@ export default {
 </script>
 
 <style lang="less">
-.func {
-    .func-search {
+.menu {
+    .menu-search {
         .el-input {
             width: 180px;
             margin-right: 10px;
         }
     }
-    .func-content {
+    .menu-content {
         margin-top: 20px;
     }
 }

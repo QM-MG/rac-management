@@ -11,6 +11,7 @@ import property from './views/property.vue'
 import bizentity from './views/bizentity.vue'
 import dimension from './views/dimension.vue'
 import strategy from './views/strategy.vue'
+import menu from './views/menu/index.vue'
 
 Vue.use(Router)
 
@@ -58,6 +59,14 @@ export default new Router({
           component: func,
           meta: {
             title: '功能管理'
+          }
+        },
+        {
+          path: '/menu',
+          name: 'menu',
+          component: menu,
+          meta: {
+            title: '菜单管理'
           }
         },
         {

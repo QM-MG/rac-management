@@ -28,7 +28,7 @@
                 <auth-table :bizLineId="bizLineId" ref="authTable" @getTableRow="getTableRow"></auth-table>
             </el-col>
             <el-col :span="9"  :offset="1"  class="content-border">
-                <bind-auth :bizLineId="bizLineId" :currRow="currRow"></bind-auth>
+                <bind-auth-tab :bizLineId="bizLineId" :currRow="currRow"></bind-auth-tab>
             </el-col>
         </el-row>
         <el-dialog
@@ -76,7 +76,7 @@
 import {searchAuthList,edit,del,add,saveBind,roleToFunc} from '@/api/auth/index';
 import {searchBizLine} from '@/api/bizline/index';
 import authTable from './authTable.vue';
-import bindAuth from './bindAuth.vue';
+import bindAuthTab from './bindAuthTab.vue';
 
 export default {
     data() {
@@ -93,7 +93,7 @@ export default {
             currRow: {},
         };
     },
-    components: {authTable,bindAuth},
+    components: {authTable, bindAuthTab},
     mounted() {
         this.searchbizLineList();
     },

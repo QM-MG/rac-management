@@ -34,6 +34,7 @@
                     <el-menu-item index="/auth">角色管理</el-menu-item>
                     <el-menu-item index="/func">功能管理</el-menu-item>
                     <el-menu-item index="/strategy">策略管理</el-menu-item>
+                    <el-menu-item index="/menu">菜单管理</el-menu-item>
                 </el-submenu>
                 <el-menu-item index="/dimension">
                     <i class="el-icon-document"></i>

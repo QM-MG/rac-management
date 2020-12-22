@@ -47,8 +47,13 @@
             </el-row>
             <el-row>
                 <el-col :span="12">
-                    <el-form-item label="功能url">
-                        <el-input v-model="addParam.content" size="mini"></el-input>
+                    <el-form-item label="url">
+                        <el-input v-model="addParam.url" size="mini"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="序号">
+                        <el-input v-model="addParam.seq" size="mini" type="number"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -78,11 +83,11 @@ export default {
                 // lazy: true,
                 // async lazyLoad (node, resolve) {
                 //     if (node.level === 0) {
-                //         let list = await me.$parent.findFuncTree(-1);
+                //         let list = await me.$parent.findMenuTree(-1);
                 //         return resolve(list);
                 //     }
                 //     else{
-                //         let list = await me.$parent.findFuncTree(node.value);
+                //         let list = await me.$parent.findMenuTree(node.value);
                 //         return resolve(list);
                 //     }
                 // }
@@ -150,7 +155,7 @@ export default {
             let treeList = [];
             this.treeList = [];
             const queue = parentIdList.map(id => {
-                return this.$parent.findFuncTree(id);
+                return this.$parent.findMenuTree(id);
             })
             await Promise.all(queue).then(result => {
                 result.forEach(i => {

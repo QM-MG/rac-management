@@ -28,3 +28,9 @@ export function roleListAll(param) {
 export function roleFuncList(param) {
     return axiosIns.post(url.ROLE_TO_FUNC_LIST, param); 
 }
+export function saveBindMenu(param) {
+    return axiosIns.post(url.ROLE_TO_MENU_SAVE, param); 
+}
+export function findMenuToBind(param) {
+    return axiosIns.post(url.ROLE_TO_MENU, param); 
+}

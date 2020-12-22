@@ -28,6 +28,9 @@ export const ROLE_TO_FUNC = './role/listFuncId'; // 角色已绑定的功能id
 export const ROLE_TO_FUNC_SAVE = './role/bindAuth'; // 角色绑定功能保存接口
 export const ROLE_TO_FUNC_DEL = './role/unbindAuth'; // 角色绑定功能保存接口
 export const ROLE_TO_FUNC_LIST = './role/listAuth'; // 角色 授权列表
+export const ROLE_TO_MENU_SAVE = './role/bindMenu'; // 角色 绑定菜单保存
+export const ROLE_TO_MENU= './role/listBindMenuId';
+
 
 export const FUNC_LIST = './func/listPage';
 export const FUNC_ADD = './func/create';
@@ -35,6 +38,14 @@ export const FUNC_EDIT = './func/edit';
 export const FUNC_DEL = './func/delete';
 export const FUNC_TREE= './func/listByParentId';
 export const FUNC_ALL_TREE= './func/listByBizLineId';
+
+export const MENU_LIST = './menu/listPage';
+export const MENU_ADD = './menu/create';
+export const MENU_EDIT = './menu/edit';
+export const MENU_DEL = './menu/delete';
+export const MENU_TREE= './menu/listByParentId';
+export const MENU_ALL_TREE= './menu/listByBizLineId';
+
 
 export const DICTIONARY_LIST = './dictionary/listPage';
 export const DICTIONARY_ADD = './dictionary/create';

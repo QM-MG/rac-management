@@ -10,27 +10,12 @@
             @row-click="rowClick"
             @expand-change="expandChange"
             :tree-props="{children: 'childList'}">
-            <!-- <el-table-column
-                v-for="item in multiSelectDialogTestData"
-                :prop="item.roleData"
-                :label="item.title"
+            <el-table-column
+                v-for="item in tableConfig"
+                :key="item.props"
+                :prop="item.props"
+                :label="item.label"
                 show-overflow-tooltip>
-            </el-table-column> -->
-            <el-table-column
-                prop="enName"
-                label="英文名">
-            </el-table-column>
-            <el-table-column
-                prop="cnName"
-                label="中文">
-            </el-table-column>
-            <el-table-column
-                prop="content"
-                label="功能url">
-            </el-table-column>
-            <el-table-column
-                prop="updateTime"
-                label="更新时间">
             </el-table-column>
             <el-table-column
                 label="操作">
@@ -53,17 +38,7 @@ import {
 export default {
     data() {
         return {
-            multiSelectDialogTestData:[
-                {
-                title:'门禁设备',
-                roleData:'equipment',//当前表头对应的来自父组件数据源的字段
-                },
-                {
-                title:'数量',
-                roleData:'number'
-                }
-            ],
-            expandArr: []
+            expandArr: [],
         };
     },
     props: {
@@ -74,22 +49,21 @@ export default {
             }
         },
         bizLineId: {
-            type: Number,
+            type: Number | String,
             default: 0
+        },
+        tableConfig: {
+            type: Array,
+            default: () => {
+                return []
+            }
         }
     },
     mounted() {
     },
     watch: {
-        tableData(val) {
-
-        }
     },
     methods: {
-        getOpenArrow() {
-
-
-        },
         expandChange(row, extendFlag) {
             // 展开
             if (extendFlag) {

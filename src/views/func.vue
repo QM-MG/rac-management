@@ -1,6 +1,7 @@
 <template>
     <div class="func">
         <div class="func-search">
+            <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
             <el-select v-model="bizLineId" placeholder="请选择" size="mini" @change="changeBiz">
                 <el-option
                 v-for="item in bizLineList"
@@ -9,7 +10,18 @@
                 :value="item.id">
                 </el-option>
             </el-select>
-            <el-button type="primary" @click="showDialog('add')" size="mini">新增</el-button>
+            <el-button type="success" @click="search" size="mini">
+                <i class="el-icon-search"></i>
+                <span>搜索</span>
+            </el-button>
+            <el-button type="warning" @click="reset" size="mini">
+                <i class="el-icon-refresh-left"></i>
+                <span>重置</span>
+            </el-button>
+            <el-button type="primary" @click="showDialog('add')" size="mini">
+                <i class="el-icon-plus"></i>
+                <span>新增</span>
+            </el-button>
         </div>
         <el-row style="clear:both;">
             <el-col :span="11" :offset="1" class="content-wrap">
@@ -352,6 +364,11 @@ export default {
         renderTree() {
             this.treeKey = +new Date();
         },
+        reset() {
+            this.param.searchVal = '';
+            this.bizLineId = '';
+            this.searchVal();
+        }
     }
 };
 </script>

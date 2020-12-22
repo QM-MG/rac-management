@@ -99,6 +99,7 @@ export default {
                     }
                 }
             },
+            searchStragegyList: [],
             parentIdList: [],
             dialogVisible: false,
             titleDialog: '新增授权列表',
@@ -126,7 +127,7 @@ export default {
     components: {pagination},
     watch: {
         bizLineId(val) {
-            this.searchStragegyList();
+            this.searchStragegyListFun();
         },
         currRow(val) {
             this.searchData();
@@ -201,7 +202,7 @@ export default {
             }
         },
         // 查询策略
-        async searchStragegyList() {
+        async searchStragegyListFun() {
             try {
                 let param = {
                     bizLineId: this.bizLineId,
@@ -220,7 +221,7 @@ export default {
         async save() {
             this.addParam.funcIds = this.parentIdList.flat(Infinity);
             this.addParam.bizLineId = this.bizLineId;
-            this.addParam.id = this.currRow.id;
+            this.addParam.roleId = this.currRow.id;
             try {
                 let res = await saveBind(this.addParam);
                 this.$message({
@@ -240,7 +241,7 @@ export default {
         async del(row) {
             let param = {
                 bizLineId: this.bizLineId,
-                id: this.currRow.id,
+                roleId: this.currRow.id,
                 strategyId: row.strategyId,
                 funcIds: [row.funcId]
             }
