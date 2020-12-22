@@ -2,7 +2,7 @@
     <div>
         <div class="content-title">
             <span>授权列表</span>
-            <el-button type="primary" @click="add" size="mini" class="btn-right"><i class="el-icon-check"></i><span>新增</span></el-button>
+            <el-button type="primary" @click="add" size="mini" class="btn-right"><i class="el-icon-plus"></i><span>新增</span></el-button>
         </div>
         <el-table
             :data="tableData"
@@ -243,7 +243,7 @@ export default {
                 bizLineId: this.bizLineId,
                 id: this.currRow.id,
                 strategyId: row.strategyId,
-                funcIds: [row.funcIds]
+                funcIds: [row.funcId]
             }
             try {
                 let res = await saveUnbind(param);
