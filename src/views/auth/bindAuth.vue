@@ -18,7 +18,6 @@
                 label="策略名称"
             >
             </el-table-column>
-            
             <el-table-column
                 width="120"
                 label="操作">
@@ -48,18 +47,13 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="功能树">
-                            <el-tree
-                                class="tree"
-                                :key="bizLineId"
-                                v-if="bizLineId"
-                                :props="props"
-                                node-key="id"
-                                icon-class="tree-node-icon"
-                                ref="tree"
-                                :load="loadNode"
-                                lazy
-                                show-checkbox>
-                            </el-tree>
+                            <el-cascader
+                                :key="count"
+                                v-model="parentIdList"
+                                :props="funcProps"
+                                size="mini"
+                                clearable>
+                            </el-cascader>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -91,15 +85,30 @@ import pagination from '@/components/pagination';
 
 export default {
     data() {
+        let me = this;
         return {
-            props: {
+            funcProps: {
+                value: 'id',
                 label: 'cnName',
-                children: 'children'
+                multiple: true,
+                lazy: true,
+                async lazyLoad (node, resolve) {
+                    if (node.level === 0) {
+                        let list = await me.findFuncTree(-1);
+                        return resolve(list);
+                    }
+                    else{
+                        let list = await me.findFuncTree(node.value);
+                        return resolve(list);
+                    }
+                }
             },
+            parentIdList: [],
             dialogVisible: false,
             titleDialog: '新增授权列表',
             addParam: {},
             param: {},
+            count: 0,
             tableData: [],
             totalCount: 0,
             pageNo: 1,
@@ -124,14 +133,22 @@ export default {
             this.searchStragegyList();
         },
         currRow(val) {
-            this.findRoleToFunc();
+            // this.findRoleToFunc();
             this.searchData();
-        }
+            this.count++;
+        },
     },
     mounted() {
     },
     methods: {
         add() {
+            if (!this.currRow.id) {
+                this.$message({
+                    message: '请选择角色！',
+                    type: 'warning'
+                })
+                return;
+            }
             this.dialogVisible = true;
             this.addParam = {};
         },
@@ -151,17 +168,6 @@ export default {
                     message: e || '查询失败！',
                     type: 'error'
                 })
-            }
-        },
-        // 功能树
-        async loadNode(node, resolve) {
-            if (node.level === 0) {
-                let list = await this.findFuncTree(-1);
-                return resolve(list);
-            }
-            else{
-                let list = await this.findFuncTree(node.data.id);
-                return resolve(list);
             }
         },
         async findFuncTree(parentId) {
@@ -217,17 +223,9 @@ export default {
 
         },
         async save() {
-            if (!this.currRow.id) {
-                this.$message({
-                    message: '请选择角色！',
-                    type: 'warning'
-                })
-                return;
-            }
+            this.addParam.funcIds = this.parentIdList.flat(Infinity);
             this.addParam.bizLineId = this.bizLineId;
             this.addParam.id = this.currRow.id;
-            this.addParam.funcIds = this.$refs.tree.getCheckedKeys();
-            
             try {
                 let res = await saveBind(this.addParam);
                 this.$message({
@@ -235,6 +233,7 @@ export default {
                     type: 'success'
                 })
                 this.dialogVisible = false;
+                this.searchData();
             }
             catch (e) {
                 this.$message({
@@ -247,10 +246,11 @@ export default {
         handleSizeChange(val) {
             this.pageSize = val;
             this.pageNo = 1;
-            this.search();
+            this.searchData();
         },
         handleCurrentChange(val) {
             this.pageNo = val;
+            this.searchData();
         },
     }
 };
