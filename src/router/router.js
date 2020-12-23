@@ -1,0 +1,181 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import login from '../views/login.vue'
+import home from '../views/home.vue'
+import bizline from '../views/bizline.vue'
+import user from '../views/user/index.vue'
+import auth from '../views/auth/index.vue'
+import func from '../views/func/index.vue'
+import dictionary from '../views/dictionary.vue'
+import property from '../views/property.vue'
+import bizentity from '../views/bizentity.vue'
+import dimension from '../views/dimension.vue'
+import strategy from '../views/strategy.vue'
+import menu from '../views/menu/index.vue'
+import notFound from '../views/notFound.vue'
+import {findMenuAllTree} from '@/api/menu/index';
+import {basicRoutrObj} from './basicRouter';
+Vue.use(Router)
+let dataRouter = [{
+	"id":1,"level":1,"enName":"bizline","cnName":"系统管理","url":"#","seq":0,
+	children:[{
+		"id":2,"level":2,"enName":"bizline","cnName":"业务线管理","url":"/system","seq":0}
+	]}
+]
+let RouterList;
+const router = new Router({
+  routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: login
+    },
+    {
+      path: '/',
+	  component: home,
+	  redirect: '/login',
+      meta: {
+        title: '首页'
+      },
+      children: [
+        {
+			path: '/system/bizline',
+			name: 'bizline',
+			component: bizline,
+			meta: {
+				title: '业务线管理'
+			}
+		},
+		{
+			path: '/system/dictionary',
+			name: 'dictionary',
+			component: dictionary,
+			meta: {
+				title: '字典管理'
+			}
+		},
+		{
+			path: '/system/property',
+			name: 'property',
+			component: property,
+			meta: {
+				title: '扩展属性'
+			}
+		},
+        {
+          path: '/user',
+          name: 'user',
+          component: user,
+          meta: {
+            title: '用户管理'
+          }
+        },
+        {
+          path: '/authorized/auth',
+          name: 'auth',
+          component: auth,
+          meta: {
+            title: '角色管理'
+          }
+        },
+        {
+          path: '/authorized/func',
+          name: 'func',
+          component: func,
+          meta: {
+            title: '功能管理'
+          }
+        },
+        {
+          path: '/authorized/menu',
+          name: 'menu',
+          component: menu,
+          meta: {
+            title: '菜单管理'
+          }
+        },
+        {
+          path: '/system/bizentity',
+          name: 'bizentity',
+          component: bizentity,
+          meta: {
+            title: '实体管理'
+          }
+        },
+        {
+          path: '/dimension',
+          name: 'dimension',
+          component: dimension,
+          meta: {
+            title: '维度管理'
+          }
+        },
+        {
+          path: '/authorized/strategy',
+          name: 'strategy',
+          component: strategy,
+          meta: {
+            title: '策略管理'
+          }
+        },
+        // {
+        //   path: '*',
+        //   name: 'notFound',
+        //   component: notFound
+        // },
+      ]
+    },
+  ]
+})
+
+router.beforeEach((to, from, next) => {
+	if (!RouterList) {
+		// localStorage 里没有 去请求数据
+		if (!getObjArr('router')) {
+			search();
+		}
+		// 从localStorage拿到路由
+		else {
+			RouterList = getObjArr('router') //拿到路由
+			// routerGo(to, next)
+		}
+	}
+	else {
+		next()
+	}
+	console.log(to)
+})
+function getObjArr(name) {
+	return JSON.parse(window.localStorage.getItem(name));
+}
+function saveObjArr(name, data) {
+	localStorage.setItem(name, JSON.stringify(data))
+}
+// 将数据转为动态路由
+function changeRouterToDynamic(menuList) {
+  let obj = {};
+	for (let i = 0; i < menuList.length; i++) {
+		if (menuList.children && menuList.length > 0) {
+			// this.
+		}
+	}
+	
+}
+// 查功能树数据
+async function search() {
+	try {
+		let res = await findMenuAllTree({bizLineId: 1});
+		RouterList = res.data;
+		RouterList = dataRouter
+		console.log(RouterList)
+		saveObjArr('router', RouterList) // 存储路由到localStorage
+		changeRouterToDynamic();
+	}
+	catch (e) {
+		this.$message({
+			message: e || '查询失败！',
+			type: 'error'
+		})
+	}
+}
+export default router
