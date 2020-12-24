@@ -178,12 +178,20 @@ export default {
             })
         },
         cascaderChange(list) {
-            this.addParam.parentId = list[list.length - 1];
+            if(list.length > 0) {
+                this.addParam.parentId = list[list.length - 1];
+            }
+            else {
+                this.addParam.parentId = -1;
+            }
         },
         closeDialog() {
             this.$emit('changeDialgVis', false);
         },
         save() {
+            if (!this.addParam.parentId) {
+                this.addParam.parentId = -1;
+            }
             if (this.status === 'add') {
                 this.$emit('saveParam', this.addParam);
             }

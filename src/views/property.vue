@@ -2,7 +2,7 @@
     <div class="property">
         <div class="property-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="bizChange">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -226,6 +226,11 @@ export default {
                     type: 'error'
                 })
             }
+        },
+        bizChange() {
+            this.search();
+            this.searchBizentityAll();
+            this.searchDictionaryAll();
         },
         // 查实体
         async searchBizentityAll() {

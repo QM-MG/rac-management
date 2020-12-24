@@ -28,3 +28,13 @@ export function treeDel(param) {
 export function findDimensionList(param) {
     return axiosIns.post(url.DIMENSION_LIST_ALL, param); 
 }
+
+export function bindNode(param) {
+    return axiosIns.post(url.DIMENSION_BIND_NODE, param); 
+}
+export function unbindNode(param) {
+    return axiosIns.post(url.DIMENSION_UNBIND_NODE, param); 
+}
+export function findNode(param) {
+    return axiosIns.post(url.DIMENSION_SEARCH_NODE, param); 
+}

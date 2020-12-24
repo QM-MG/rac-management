@@ -91,7 +91,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
-                            <el-input v-model="addParam.enName" size="mini"></el-input>
+                            <el-input v-model="addParam.enName" size="mini" :disabled="status=='edit'"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">

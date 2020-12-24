@@ -9,7 +9,7 @@ import func from '../views/func/index.vue'
 import dictionary from '../views/dictionary.vue'
 import property from '../views/property.vue'
 import bizentity from '../views/bizentity.vue'
-import dimension from '../views/dimension.vue'
+import dimension from '../views/dimension/index.vue'
 import strategy from '../views/strategy.vue'
 import menu from '../views/menu/index.vue'
 import notFound from '../views/notFound.vue'
@@ -128,23 +128,24 @@ const router = new Router({
   ]
 })
 
-router.beforeEach((to, from, next) => {
-	if (!RouterList) {
-		// localStorage 里没有 去请求数据
-		if (!getObjArr('router')) {
-			search();
-		}
-		// 从localStorage拿到路由
-		else {
-			RouterList = getObjArr('router') //拿到路由
-			// routerGo(to, next)
-		}
-	}
-	else {
-		next()
-	}
-	console.log(to)
-})
+// router.beforeEach((to, from, next) => {
+// 	if (!RouterList) {
+// 		// localStorage 里没有 去请求数据
+// 		if (!getObjArr('router')) {
+// 			search();
+// 		}
+// 		// 从localStorage拿到路由
+// 		else {
+// 			RouterList = getObjArr('router') //拿到路由
+// 			// routerGo(to, next)
+// 		}
+// 	}
+// 	else {
+// 		next()
+// 	}
+// 	console.log(to)
+// })
+
 function getObjArr(name) {
 	return JSON.parse(window.localStorage.getItem(name));
 }

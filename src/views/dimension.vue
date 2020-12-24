@@ -82,7 +82,6 @@
                     :props="props"
                     :load="loadNode"
                     :key="treeKey"
-                    icon-class="el-icon-caret-right tree-node-icon"
                     lazy
                     ref="tree"
                     @node-click="nodeCheck">

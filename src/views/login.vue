@@ -27,7 +27,7 @@ export default {
     methods: {
         onSubmit() {
             this.$router.push({
-                path: '/bizline'
+                path: '/system/bizline'
             })
         }
     }

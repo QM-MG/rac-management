@@ -96,6 +96,9 @@ export default {
             this.param.searchVal = searchVal;
             this.search();
         },
+        showDialog(status, row) {
+            this.$emit('showDialog',status, row);
+        },
         async del(row) {
             let param = {
                 id: row.id

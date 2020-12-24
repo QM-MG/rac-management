@@ -25,7 +25,7 @@
         </div>
         <el-row class="content-wrap">
             <el-col :span="14" class="content-border">
-                <auth-table :bizLineId="bizLineId" ref="authTable" @getTableRow="getTableRow"></auth-table>
+                <auth-table :bizLineId="bizLineId" ref="authTable" @getTableRow="getTableRow" @showDialog="showDialog"></auth-table>
             </el-col>
             <el-col :span="9"  :offset="1"  class="content-border">
                 <bind-auth-tab :bizLineId="bizLineId" :currRow="currRow"></bind-auth-tab>
@@ -126,6 +126,7 @@ export default {
             }
         },
         showDialog(status, row) {
+            console.log(status, row)
             if (status === 'add') {
                 this.status = 'add';
                 this.titleDialog = '新增角色';

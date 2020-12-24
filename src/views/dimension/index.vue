@@ -1,6 +1,6 @@
 <template>
-    <div class="user">
-        <div class="user-search">
+    <div class="dimension">
+        <div class="dimension-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
             <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
                 <el-option
@@ -24,14 +24,14 @@
             </el-button>
         </div>
         <el-row class="content-wrap">
-            <el-col :span="12" class="content-border">
+            <el-col :span="14" class="content-border">
                 <div class="content-title">
-                    <span>用户列表</span>
+                    <span>维度列表</span>
                 </div>
                 <el-table
                     :data="tableData"
+                    @row-click="rowClick"
                     highlight-current-row
-                    @current-change="handleRowChange"
                     style="width: 100%">
                     <el-table-column
                         prop="enName"
@@ -44,28 +44,8 @@
                         >
                     </el-table-column>
                     <el-table-column
-                        width="50"
-                        label="性别"
-                        >
-                        <template slot-scope="scope">
-                            <span v-show="scope.row.gender == 0">男</span>
-                            <span v-show="scope.row.gender == 1">女</span>
-                        </template>
-                    </el-table-column>
-                    <!-- <el-table-column
-                        prop="email"
-                        label="邮箱">
-                    </el-table-column> -->
-                    <el-table-column
-                        prop="mobilePhone"
-                        label="手机号">
-                    </el-table-column>
-                    <!-- <el-table-column
-                        prop="remark"
-                        label="备注">
-                    </el-table-column> -->
-                    <el-table-column
                         prop="updateTime"
+                        width="200"
                         label="更新时间">
                     </el-table-column>
                     <el-table-column
@@ -88,11 +68,12 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="11"  :offset="1" class="content-border">
-                <bind-user-tab
-                :bizLineId='param.bizLineId'
+            <el-col :span="9" :offset="1"  class="content-border">
+                <bind-dimension
+                ref="bindDimension"
+                :bizLineId="param.bizLineId"
                 :currRow="currRow"
-                ></bind-user-tab>
+                :bizLineList="bizLineList"></bind-dimension>
             </el-col>
         </el-row>
         <el-dialog
@@ -100,11 +81,11 @@
             :visible.sync="dialogVisible"
             custom-class="add-dialog"
             width="60%">
-            <el-form ref="form" :model="addParam" label-width="80px">
+            <el-form ref="form" :model="addParam" label-width="100px">
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
-                            <el-input v-model="addParam.enName" size="mini" :disabled="status === 'edit'"></el-input>
+                            <el-input v-model="addParam.enName" size="mini" :disabled="status=='edit'"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -114,26 +95,6 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="性别">
-                            <template>
-                                <el-radio v-model="addParam.gender" :label="0">男</el-radio>
-                                <el-radio v-model="addParam.gender" :label="1">女</el-radio>
-                            </template>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="email">
-                            <el-input v-model="addParam.email" size="mini"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="手机号">
-                            <el-input v-model="addParam.mobilePhone" size="mini"></el-input>
-                        </el-form-item>
-                    </el-col>
                     <el-col :span="12">
                         <el-form-item label="业务线">
                             <el-select v-model="addParam.bizLineId" size="mini" placeholder="请选择" disabled>
@@ -146,25 +107,17 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
                     <el-col :span="12">
-                        <el-form-item label="备注">
-                            <el-input v-model="addParam.remark" size="mini"></el-input>
+                        <el-form-item label="维度节点类型">
+                            <el-select v-model="addParam.nodeTypeId" size="mini" placeholder="请选择" :disabled="status=='edit'">
+                                <el-option
+                                v-for="item in dictionaryList"
+                                :key="item.id"
+                                :label="item.cnName"
+                                :value="item.id">
+                                </el-option>
+                            </el-select>
                         </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <!-- 0 启用 1禁用 -->
-                        <el-form-item label="状态">
-                            <el-switch
-                                v-model="addParam.status"
-                                :active-value="0"
-                                :inactive-value="1"
-                                active-text="启用"
-                                inactive-text="禁用">
-                            </el-switch>
-                        </el-form-item>
-
                     </el-col>
                 </el-row>
             </el-form>
@@ -176,53 +129,57 @@
     </div>
 </template>
 <script>
+import bindDimension from './bindDimension';
 import pagination from '@/components/pagination';
 import {
-    searchUserList,
+    searchData,
     edit,
     del,
     add,
-    userToDimensionAuthSave,
-} from '@/api/user/index';
+    findTreeList,
+    treeAdd,
+    treeEdit,
+    treeDel
+    } from '@/api/dimension/index';
 import {searchBizLine} from '@/api/bizline/index';
-import bindUserTab from './bindUserTab.vue';
+import {searchDictionaryAll} from '@/api/dictionary/index';
 
 export default {
     data() {
         return {
             tableData: [],
             param: {
-                searchVal: '',
-                bizLineId: ''
+                searchVal: ''
             },
-            addParam: {
-                gender: 0,
-                status: 0
-            },
-            currRow: {},
-            status: 'add',
-            dialogVisible: false,
+            titleDialog: '新增维度管理',
             bizLineList: [],
+            addParam: {},
+            dictionaryList: [],
+            dialogVisible: false,
             totalCount: 0,
+            status: 'add',
+            currRow: {},
             pageNo: 1,
             pageSize: 20,
-            titleDialog: '用户新增',
-            count: 0,
         };
     },
-    components: {pagination, bindUserTab},
     mounted() {
-        this.searchbizLineList();
+        this.searchBizLineList();
     },
+    components: {pagination,bindDimension},
     methods: {
         async search() {
             this.param.pageNo = this.pageNo;
             this.param.pageSize = this.pageSize;
             try {
-                let res = await searchUserList(this.param);
+                let res = await searchData(this.param);
                 let data = res.data || {};
                 this.totalCount = data.totalCount;
                 this.tableData = data.dataList || [];
+                if (this.tableData.length > 0) {
+                    this.currRow = this.tableData[0];
+                }
+                this.searchDictionaryAll();
             }
             catch (e) {
                 this.$message({
@@ -230,16 +187,28 @@ export default {
                     type: 'error'
                 })
             }
-            
         },
-        async searchbizLineList() {
+        async searchBizLineList() {
             try {
                 let res = await searchBizLine();
                 this.bizLineList = res.data || [];
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
                     this.search();
+                    this.searchDictionaryAll();
                 }
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        async searchDictionaryAll() {
+            try {
+                let res = await searchDictionaryAll(this.param);
+                this.dictionaryList = res.data || [];
             }
             catch (e) {
                 this.$message({
@@ -251,19 +220,16 @@ export default {
         showDialog(status, row) {
             if (status === 'add') {
                 this.status = 'add';
-                this.addParam = {
-                    status: 0,
-                    gender: 0
-                };
-                this.titleDialog = '用户新增';
+                this.titleDialog = '新增维度管理';
+                this.addParam = {};
                 if (this.bizLineList.length > 0) {
-                    this.addParam.bizLineId = this.param.bizLineId
+                    this.addParam.bizLineId = this.param.bizLineId;
                 }
             }
             else {
                 this.status = 'edit';
                 this.addParam = row;
-                this.titleDialog = '用户编辑';
+                this.titleDialog = '编辑维度管理';
             }
             this.dialogVisible = true;
         },
@@ -289,11 +255,14 @@ export default {
                 })
             }
         },
-        async edit(row) {
+        async edit() {
             try {
                 let res = await edit(this.addParam);
                 this.dialogVisible = false;
-                this.search();
+                this.$message({
+                    message: '保存成功！',
+                    type: 'success'
+                })
             }
             catch (e) {
                 this.$message({
@@ -313,6 +282,7 @@ export default {
                     type: 'success'
                 })
                 this.search();
+                this.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -321,59 +291,18 @@ export default {
                 })
             }
         },
-        handleRowChange(row) {
-            this.currRow = row;
-            // if (row) {
-            //     this.saveParam.userId = row.id;
-            //     this.findUserToDomesion();
-            // }
+        // 点击当前行
+        rowClick(row) {
+            this.currRow = {};
+            setTimeout(() => {
+                this.currRow = row;
+            }, 0)
         },
-        async saveBind() {
-            if (!this.saveParam.userId) {
-                this.$message({
-                    message: '请选择用户！',
-                    type: 'warning'
-                })
-                return;
-            }
-            this.saveParam.roleIds = this.$refs.roleTree.getCheckedKeys();
-            if (!this.saveParam.roleIds) {
-                this.$message({
-                    message: '请选择角色！',
-                    type: 'warning'
-                })
-                return;
-            }
-            this.saveParam.dimensionNodeIds = []
-            this.dimensionChildActiveList.forEach(item => {
-                this.saveParam.dimensionNodeIds.push(item.id);
-            })
-            if (this.saveParam.dimensionNodeIds.length <= 0) {
-                this.$message({
-                    message: '请选择维度！',
-                    type: 'warning'
-                })
-                return;
-            }
-            try {
-                let res = await userToDimensionAuthSave(this.saveParam);
-                this.$message({
-                    message: '保存成功！',
-                    type: 'success'
-                })
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '保存失败！',
-                    type: 'error'
-                })
-            }
+        // 刷新key值，重新渲染tree
+        renderTree() {
+            this.treeKey = +new Date();
         },
         reset() {
-            this.param = {};
-            if (this.bizLineList.length > 0) {
-                this.param.bizLineId = this.bizLineList[0].id;
-            }
             this.pageSize = 20;
             this.pageNo = 1;
             this.search();
@@ -386,40 +315,40 @@ export default {
         },
         handleCurrentChange(val) {
             this.pageNo = val;
-
+            this.search();
         }
     }
 };
 </script>
 
 <style lang="less">
-.user {
-    .user-search {
+.dimension {
+    .dimension-search {
         .el-input {
             width: 180px;
             margin-right: 10px;
         }
     }
-    .user-add {
+    .dimension-add {
         float: right;
     }
-    .tree-title {
-        p {
+    .tree {
+        clear: both;
+        font-size: 14px;
+        .content-title {
             float: left;
-            line-height: 36px;
         }
-        .save-btn {
+        .tree-add {
             float: right;
         }
-    }
-    .tree-wrap {
-        margin-top: 10px;
-    }
-    .child-text {
-        height: 25px;
-    }
-    .tag-wrap {
-        margin-bottom: 15px;
+        .tree-node-icon {
+            font-weight: 900;
+            color:#3f9eff;
+        }
+        .tree-del-icon {
+            font-size: 12px;
+            color:#F56C6C;
+        }
     }
 }
 </style>

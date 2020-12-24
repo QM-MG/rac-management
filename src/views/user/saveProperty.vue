@@ -229,6 +229,7 @@ export default {
                     type: 'success'
                 })
                 this.dialogVisible = false;
+                this.findPropertyList();
             }
             catch (e) {
                 this.$message({
