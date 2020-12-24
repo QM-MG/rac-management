@@ -162,6 +162,7 @@ export default {
                 name: '全部固定值数据'
             }],
             addParam: {},
+            status: 'add',
             dialogVisible: false,
             totalCount: 0,
             pageNo: 1,
