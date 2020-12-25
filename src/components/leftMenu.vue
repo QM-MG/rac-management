@@ -16,6 +16,26 @@
                     <img src="../assets/img/logo_icon.png" class="sidebar-logo">
                     <span slot="title">Rac权限管理系统</span>
                 </el-menu-item>
+                <div v-for="(menu, index) in menuList" :key="index">
+                    <el-submenu v-if="menu.path == '#'" :index="menu.seq">
+                        <template slot="title" v-if="menu.level == 1">
+                            <i class="el-icon-location"></i>
+                            <span>{{menu.cnName}}</span>
+                        </template>
+                        <div v-if="menu.childList.length > 0" >
+                            <el-menu-item
+                                v-for="item in menu.childList"
+                                :index="item.path"
+                                :key="item.path">{{item.cnName}}
+                            </el-menu-item>
+                        </div>
+                    </el-submenu>
+                    <el-menu-item :index="menu.path" v-else>
+                        <i class="el-icon-document"></i>
+                        <span slot="title">{{menu.cnName}}</span>
+                    </el-menu-item>
+                </div>
+                <!--
                 <el-submenu index="1">
                     <template slot="title">
                         <i class="el-icon-location"></i>
@@ -44,6 +64,7 @@
                     <i class="el-icon-setting"></i>
                     <span slot="title">用户管理</span>
                 </el-menu-item>
+                -->
             </el-menu>
         </el-scrollbar>
     </div>
@@ -56,7 +77,13 @@ export default {
         };
     },
     mounted() {
+        console.log(global.menuList);
         this.init();
+    },
+    computed: {
+        menuList() {
+            return global.menuList
+        }
     },
     props: {
         toggleMenuShow: {
