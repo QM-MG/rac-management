@@ -17,60 +17,47 @@
                     <span slot="title">Rac权限管理系统</span>
                 </el-menu-item>
                 <div v-for="(menu, index) in menuList" :key="index">
-                    <el-submenu v-if="menu.path == '#'" :index="menu.seq">
-                        <template slot="title" v-if="menu.level == 1">
-                            <i class="el-icon-location"></i>
-                            <span>{{menu.cnName}}</span>
-                        </template>
-                        <div v-if="menu.childList.length > 0" >
-                            <el-menu-item
-                                v-for="item in menu.childList"
-                                :index="item.path"
-                                :key="item.path">{{item.cnName}}
-                            </el-menu-item>
-                        </div>
-                    </el-submenu>
-                    <el-menu-item :index="menu.path" v-else>
-                        <i class="el-icon-document"></i>
-                        <span slot="title">{{menu.cnName}}</span>
-                    </el-menu-item>
+            <el-submenu v-if="menu.path == '#'" :index="menu.seq">
+                <template slot="title" v-if="menu.level == 1">
+                    <i class="el-icon-location"></i>
+                    <span>{{menu.cnName}}</span>
+                </template>
+                <div v-if="menu.childList.length > 0" >
+                    <!-- <el-menu-item
+                        v-for="item in menu.childList"
+                        :index="item.path"
+                        :key="item.path">{{item.cnName}}
+                    </el-menu-item> -->
+                    <menu-tree :menuList="menu.childList"></menu-tree>
                 </div>
-                <!--
-                <el-submenu index="1">
-                    <template slot="title">
-                        <i class="el-icon-location"></i>
-                        <span>系统管理</span>
-                    </template>
-                    <el-menu-item index="/system/bizline">业务线管理</el-menu-item>
-                    <el-menu-item index="/system/dictionary">字典管理</el-menu-item>
-                    <el-menu-item index="/system/property">扩展属性</el-menu-item>
-                    <el-menu-item index="/system/bizentity">实体管理</el-menu-item>
-                </el-submenu>
-                <el-submenu index="2">
-                    <template slot="title">
-                        <i class="el-icon-menu"></i>
-                        <span slot="title">权限管理</span>
-                    </template>
-                    <el-menu-item index="/authorized/auth">角色管理</el-menu-item>
-                    <el-menu-item index="/authorized/func">功能管理</el-menu-item>
-                    <el-menu-item index="/authorized/strategy">策略管理</el-menu-item>
-                    <el-menu-item index="/authorized/menu">菜单管理</el-menu-item>
-                </el-submenu>
-                <el-menu-item index="/dimension">
-                    <i class="el-icon-document"></i>
-                    <span slot="title">维度管理</span>
-                </el-menu-item>
-                <el-menu-item index="/user" >
-                    <i class="el-icon-setting"></i>
-                    <span slot="title">用户管理</span>
-                </el-menu-item>
-                -->
+            </el-submenu>
+            <el-menu-item :index="menu.path" v-else>
+                <i class="el-icon-document"></i>
+                <span slot="title">{{menu.cnName}}</span>
+            </el-menu-item>
+        </div>
+                <menu-tree :menuList="menuList"></menu-tree>
             </el-menu>
         </el-scrollbar>
+        <!-- 
+            <el-submenu v-if="menu.children && menu.children.length >= 1" :index="'' + menu.id">
+                <template slot="title">
+                <i :class="menu.icon" ></i>
+                <span slot="title">{{menu.name}}</span>
+                </template>
+                <MenuTree v-for="item in menu.children" :key="item.id" :menu="item"></MenuTree>
+            </el-submenu>
+            <el-menu-item v-else :index="'' + menu.id" @click="handleRoute(menu)">
+                <i :class="menu.icon"></i>
+                <span slot="title">{{menu.name}}</span>
+            </el-menu-item>
+         -->
     </div>
 </template>
 <script>
+import menuTree from './menuTree.vue';
 export default {
+    components: { menuTree },
     data() {
         return {
             path: ''
