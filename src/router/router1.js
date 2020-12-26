@@ -14,7 +14,6 @@ import strategy from '../views/strategy.vue'
 import menu from '../views/menu/index.vue'
 import notFound from '../views/notFound.vue'
 import {findMenuAllTree} from '@/api/menu/index';
-import {basicRoutrObj} from './basicRouter';
 Vue.use(Router)
 let RouterList;
 const router = new Router({

@@ -17,26 +17,26 @@
                     <span slot="title">Rac权限管理系统</span>
                 </el-menu-item>
                 <div v-for="(menu, index) in menuList" :key="index">
-            <el-submenu v-if="menu.path == '#'" :index="menu.seq">
-                <template slot="title" v-if="menu.level == 1">
-                    <i class="el-icon-location"></i>
-                    <span>{{menu.cnName}}</span>
-                </template>
-                <div v-if="menu.childList.length > 0" >
-                    <!-- <el-menu-item
-                        v-for="item in menu.childList"
-                        :index="item.path"
-                        :key="item.path">{{item.cnName}}
-                    </el-menu-item> -->
-                    <menu-tree :menuList="menu.childList"></menu-tree>
+                    <el-submenu v-if="menu.path == '#'" :index="menu.seq">
+                        <template slot="title" v-if="menu.level == 1">
+                            <i class="el-icon-location"></i>
+                            <span>{{menu.cnName}}</span>
+                        </template>
+                        <div v-if="menu.childList.length > 0" >
+                            <el-menu-item
+                                v-for="item in menu.childList"
+                                :index="item.path"
+                                :key="item.path">{{item.cnName}}
+                            </el-menu-item> 
+                            <!-- <menu-tree :menuList="menu.childList"></menu-tree>-->
+                        </div>
+                    </el-submenu>
+                    <el-menu-item :index="menu.path" v-else>
+                        <i class="el-icon-document"></i>
+                        <span slot="title">{{menu.cnName}}</span>
+                    </el-menu-item>
                 </div>
-            </el-submenu>
-            <el-menu-item :index="menu.path" v-else>
-                <i class="el-icon-document"></i>
-                <span slot="title">{{menu.cnName}}</span>
-            </el-menu-item>
-        </div>
-                <menu-tree :menuList="menuList"></menu-tree>
+                <!-- <menu-tree :menuList="menuList"></menu-tree> -->
             </el-menu>
         </el-scrollbar>
         <!-- 
@@ -64,7 +64,6 @@ export default {
         };
     },
     mounted() {
-        console.log(global.menuList);
         this.init();
     },
     computed: {

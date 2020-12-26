@@ -16,7 +16,11 @@
     </div>
 </template>
 <script>
+import {
+    logout
+} from '@/api/common/index';
 export default {
+    name: 'top',
     data() {
         return {
             showBread: true
@@ -43,7 +47,21 @@ export default {
         },
         handleCommand(command) {
             if (command === 'a') {
-                this.$router.push('/login')
+                this.logout();
+            }
+        },
+        async logout() {
+            try {
+                let res = await logout();
+                this.$router.push({
+                    path: '/login'
+                })
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
             }
         }
         

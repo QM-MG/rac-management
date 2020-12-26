@@ -48,7 +48,7 @@
             <el-row>
                 <el-col :span="12">
                     <el-form-item label="功能url">
-                        <el-input v-model="addParam.content" size="mini"></el-input>
+                        <el-input v-model="addParam.content" size="mini" style="width: 593px;"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -139,7 +139,6 @@ export default {
             }
         },
         editRow(val) {
-            console.log(val)
             this.addParam = val;
             this.parentIdList = val.pathIds || [];
         }

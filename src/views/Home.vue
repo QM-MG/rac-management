@@ -3,7 +3,7 @@
 		<div class="aside left" :style="{width:toggleMenuShow? '64px': '250px'}">
 			<left-menu :toggleMenuShow="toggleMenuShow"></left-menu>
 		</div>
-		<div class="aside main" :style="{marginLeft:toggleMenuShow?'64px': '250px'}"> 
+		<div class="aside main" :style="{marginLeft:toggleMenuShow?'64px': '250px'}">
 			<top :toggleMenuShow="toggleMenuShow" @toggleMenu="toggleMenu"></top>
 			<div class="main-container">
 				<router-view></router-view>
@@ -12,8 +12,8 @@
 	</div>
 </template>
 <script>
-import leftMenu from '@/components/leftMenu.vue';
 import top from '@/components/top.vue';
+import leftMenu from '@/components/leftMenu.vue';
 
 export default {
     data() {

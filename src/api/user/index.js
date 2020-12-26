@@ -41,3 +41,7 @@ export function userToPropertyList(param) {
 export function userToPropertySave(param) {
     return axiosIns.post(url.USER_TO_PROPERTY_SAVE, param); 
 }
+// 用户绑定角色保存
+export function userToMenu(param) {
+    return axiosIns.post(url.USER_LIST_MENU, param); 
+}

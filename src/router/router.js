@@ -2,17 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import login from '../views/login.vue'
 import home from '../views/home.vue'
-// import bizline from '../views/bizline.vue'
-// import user from '../views/user/index.vue'
-// import auth from '../views/auth/index.vue'
-// import func from '../views/func/index.vue'
-// import dictionary from '../views/dictionary.vue'
-// import property from '../views/property.vue'
-// import bizentity from '../views/bizentity.vue'
-// import dimension from '../views/dimension/index.vue'
-// import strategy from '../views/strategy.vue'
-// import menu from '../views/menu/index.vue'
-import {findMenuAllTree} from '@/api/menu/index';
+import {userToMenu} from '@/api/user/index';
 const _import = require('./_import_' + process.env.NODE_ENV) //获取组件的方法
 Vue.use(Router)
 let routerList = []; // 存储到storage的数据
@@ -21,7 +11,7 @@ let newRoutes = [
 	{
 		path: '/',
 		component: home,
-		redirect: '/login',
+		// redirect: '/login',
 		meta: {
 		  title: '首页'
 		},
@@ -38,37 +28,40 @@ const router = new Router({
 })
 
 router.beforeEach(async(to, from, next) => {
-	// if (to.path === '/login') {
-	// 	routerList = [];
-	// 	localStorage.removeItem(router)
-	// }
-	if (!routerList || routerList.length <= 0)  {
-		console.log(1, to.path)
-		// localStorage 里没有 去请求数据
-		if (!getObjArr('router')) {
-			routerData = await search();
-			let menuList = changeRouterToMenu(routerData); // 转为菜单
-			getRouterList(routerData); // 转为注册路由
-			newRoutes[0].children = routerList;
-			router.addRoutes(newRoutes)
-			global.menuList = menuList //将路由数据传递给全局变量，做侧边栏菜单渲染工作
-			saveObjArr('router', routerData) // 存储路由到localStorage
-			next();
-		}
-		// 从localStorage拿到路由
-		else {
-			routerData = getObjArr('router') //拿到路由
-			let menuList = changeRouterToMenu(routerData); // 转为菜单
-			global.menuList = menuList //将路由数据传递给全局变量，做侧边栏菜单渲染工作
-			getRouterList(routerData); // 转为注册路由
-			newRoutes[0].children = routerList;
-			router.addRoutes(newRoutes)
-			router.replace(to.path)
-			next();
-		}
+	if (to.path === '/login') {
+		routerList = [];
+		localStorage.removeItem('router')
+		next();
 	}
 	else {
-		next()
+		if (!routerList || routerList.length <= 0)  {
+			// localStorage 里没有 去请求数据
+			if (!getObjArr('router')) {
+				routerData = await search();
+				let menuList = changeRouterToMenu(routerData); // 转为菜单
+				getRouterList(routerData); // 转为注册路由
+				newRoutes[0].children = routerList;
+				router.addRoutes(newRoutes)
+				global.menuList = menuList //将路由数据传递给全局变量，做侧边栏菜单渲染工作
+				saveObjArr('router', routerData) // 存储路由到localStorage
+				next('/');
+			}
+			// 从localStorage拿到路由
+			else {
+				routerData = getObjArr('router') //拿到路由
+				let menuList = changeRouterToMenu(routerData); // 转为菜单
+				global.menuList = menuList //将路由数据传递给全局变量，做侧边栏菜单渲染工作
+				getRouterList(routerData); // 转为注册路由
+				newRoutes[0].children = routerList;
+				router.addRoutes(newRoutes)
+				router.replace(to.path)
+				next();
+			}
+		}
+		else {
+			next()
+		}
+
 	}
 })
 
@@ -121,7 +114,7 @@ let temp = [];
 // 查功能树数据
 async function search() {
 	try {
-		let res = await findMenuAllTree({bizLineId: 1});
+		let res = await userToMenu({bizLineId: 1});
 		let routerData = res.data;
 		return routerData
 	}

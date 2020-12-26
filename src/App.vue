@@ -5,7 +5,6 @@
 </template>
 <script>
 import leftMenu from '@/components/leftMenu.vue';
-import top from '@/components/top.vue';
 
 export default {
     data() {

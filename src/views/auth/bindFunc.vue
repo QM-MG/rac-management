@@ -88,6 +88,7 @@ export default {
                 label: 'cnName',
                 multiple: true,
                 lazy: true,
+                checkStrictly: true,
                 async lazyLoad (node, resolve) {
                     if (node.level === 0) {
                         let list = await me.findFuncTree(-1);
@@ -110,6 +111,7 @@ export default {
             totalCount: 0,
             pageNo: 1,
             pageSize: 20,
+            parList: []
         };
     },
     props: {
@@ -133,6 +135,14 @@ export default {
             this.searchData();
             this.count++;
         },
+        parentIdList(list) {
+            this.parList = [];
+            for (let i = 0; i < list.length; i++) {
+                if (list[i] && list[i].length > 0) {
+                    this.parList.push(list[i][list[i].length - 1])
+                }
+            }
+        }
     },
     mounted() {
     },
@@ -219,7 +229,7 @@ export default {
 
         },
         async save() {
-            this.addParam.funcIds = this.parentIdList.flat(Infinity);
+            this.addParam.funcIds = this.parList;
             this.addParam.bizLineId = this.bizLineId;
             this.addParam.roleId = this.currRow.id;
             try {

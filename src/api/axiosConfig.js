@@ -1,19 +1,44 @@
 import axios from 'axios';
+import Router from '../router/router'
+
 import {
   Message,
 } from 'element-ui'
+import router from '../router/router';
 const BASE_URL = '/rac';
 const axiosIns = axios.create({
     baseURL: BASE_URL,
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Requested-With': "XMLHttpRequest"
     }
 })
+// axiosIns.interceptors.request.use(function(res){
+//   console.log(res)
+//   if (res.url === './login') {
+//     debugger
+//     res.headers = {
+//       'Content-Type': 'application/x-www-form-urlencoded'
+//     }
+//   }
+//   return res
+//   console.log(res)
+// },function(fail){
+// })
 axiosIns.interceptors.response.use(
     response => { //成功请求到数据
       if (response && response.data && +response.data.status === 0) {
         return response.data;
-      } else {
+      } 
+      else if (response && response.data && +response.data.status === 403) {
+        Router.push({path: '/login'})
+        Message({
+          message: '权限失效，请重新登录！',
+          type: 'warning'
+        })
+        return;
+      }
+      else {
         return Promise.reject(response.data.msg)
       }
     },

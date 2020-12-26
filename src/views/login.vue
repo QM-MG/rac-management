@@ -1,12 +1,12 @@
 <template>
     <div class="login-container">
-        <el-form ref="form" :model="login" label-width="80px" class="login-form">
+        <el-form ref="form" method="post" :model="param" label-width="80px" class="login-form">
             <p class="login-title">rac权限管理系统</p>
             <el-form-item label="用户名">
-                <el-input v-model="login.name"></el-input>
+                <el-input v-model="param.userName"></el-input>
             </el-form-item>
             <el-form-item label="密码">
-                <el-input v-model="login.password"></el-input>
+                <el-input v-model="param.password" type="password"></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="onSubmit" class="login-btn">登录</el-button>
@@ -16,19 +16,33 @@
 </template>
 
 <script>
+import {
+    login,
+    loginAxios
+} from '@/api/common/index';
 export default {
     data() {
         return {
-            login: {}
+            param: {}
         };
     },
     mounted() {
+
     },
     methods: {
-        onSubmit() {
-            this.$router.push({
-                path: '/system/bizline'
-            })
+        async onSubmit() {
+            try {
+                let res = await loginAxios(this.param);
+                this.$router.push({
+                    path: '/'
+                })
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
         }
     }
 };

@@ -126,7 +126,6 @@ export default {
             }
         },
         showDialog(status, row) {
-            console.log(status, row)
             if (status === 'add') {
                 this.status = 'add';
                 this.titleDialog = '新增角色';

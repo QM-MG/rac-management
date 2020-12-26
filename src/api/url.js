@@ -1,3 +1,7 @@
+export const LOGIN = './login';
+export const LOGINAXIOS = './loginAjax';
+export const LOGOUT= './logout'; // 用户登出
+
 export const BIZLINE_LIST = './bizline/listPage';
 export const BIZLINE_ADD = './bizline/create';
 export const BIZLINE_EDIT = './bizline/edit';
@@ -15,7 +19,7 @@ export const USER_TO_DIMENSION = './user/listUserDimensionNodes'; // 用户已�
 export const USER_TO_DIMENSION_SAVE = './user/grantDimensionNodes'; // 用户绑定角色保存
 export const USER_TO_PROPERTY_LIST = './user/listUserExtProperty'; // 用户下的所有属性
 export const USER_TO_PROPERTY_SAVE = './user/addExtProperty'; // 用户下的所有属性
-
+export const USER_LIST_MENU = './user/listMenu'; // 用户下的所有菜单
 
 // export const USER_BIND_DIMENSION = './user/bindDimensionNodes';
 
