@@ -17,7 +17,7 @@
                     <span slot="title">Rac权限管理系统</span>
                 </el-menu-item>
                 <div v-for="(menu, index) in menuList" :key="index">
-                    <el-submenu v-if="menu.path == '#'" :index="menu.seq">
+                    <el-submenu v-if="menu.path == '#'" :index="menu.id">
                         <template slot="title" v-if="menu.level == 1">
                             <i class="el-icon-location"></i>
                             <span>{{menu.cnName}}</span>

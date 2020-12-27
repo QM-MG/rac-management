@@ -20,6 +20,8 @@ export const USER_TO_DIMENSION_SAVE = './user/grantDimensionNodes'; // 用户绑
 export const USER_TO_PROPERTY_LIST = './user/listUserExtProperty'; // 用户下的所有属性
 export const USER_TO_PROPERTY_SAVE = './user/addExtProperty'; // 用户下的所有属性
 export const USER_LIST_MENU = './user/listMenu'; // 用户下的所有菜单
+export const ROPERTY_TO_DEL= './user/dropExtProperty';
+
 
 // export const USER_BIND_DIMENSION = './user/bindDimensionNodes';
 

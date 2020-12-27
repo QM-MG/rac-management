@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+import qs from 'qs';
 import {
     login,
     loginAxios
@@ -30,19 +32,28 @@ export default {
 
     },
     methods: {
-        async onSubmit() {
-            try {
-                let res = await loginAxios(this.param);
-                this.$router.push({
-                    path: '/'
-                })
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '查询失败！',
-                    type: 'error'
-                })
-            }
+        onSubmit() {
+            console.log(qs.stringify(this.param))
+            axios({
+                url: '/rac/login',
+                method: 'post',
+                data: qs.stringify(this.param),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            // try {
+            //     let res = await login(this.param);
+            //     this.$router.push({
+            //         path: '/'
+            //     })
+            // }
+            // catch (e) {
+            //     this.$message({
+            //         message: e || '查询失败！',
+            //         type: 'error'
+            //     })
+            // }
         }
     }
 };

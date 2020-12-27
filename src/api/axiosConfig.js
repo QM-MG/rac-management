@@ -13,30 +13,30 @@ const axiosIns = axios.create({
         'X-Requested-With': "XMLHttpRequest"
     }
 })
-// axiosIns.interceptors.request.use(function(res){
-//   console.log(res)
-//   if (res.url === './login') {
-//     debugger
-//     res.headers = {
-//       'Content-Type': 'application/x-www-form-urlencoded'
-//     }
-//   }
-//   return res
-//   console.log(res)
-// },function(fail){
-// })
+axiosIns.interceptors.request.use(function(res){
+  if (res.url === './login') {
+    res.headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  }
+  return res
+},function(fail){
+})
 axiosIns.interceptors.response.use(
     response => { //成功请求到数据
       if (response && response.data && +response.data.status === 0) {
         return response.data;
       } 
       else if (response && response.data && +response.data.status === 403) {
+        response.data = {
+          data: {}
+        };
         Router.push({path: '/login'})
         Message({
           message: '权限失效，请重新登录！',
           type: 'warning'
         })
-        return;
+        return response.data;
       }
       else {
         return Promise.reject(response.data.msg)

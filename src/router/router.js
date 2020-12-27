@@ -5,6 +5,11 @@ import home from '../views/home.vue'
 import {userToMenu} from '@/api/user/index';
 const _import = require('./_import_' + process.env.NODE_ENV) //获取组件的方法
 Vue.use(Router)
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location, onResolve, onReject) {
+if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
+return originalPush.call(this, location).catch(err => err)
+}
 let routerList = []; // 存储到storage的数据
 let routerData = []; // 接收后端数据
 let newRoutes = [
@@ -37,7 +42,11 @@ router.beforeEach(async(to, from, next) => {
 		if (!routerList || routerList.length <= 0)  {
 			// localStorage 里没有 去请求数据
 			if (!getObjArr('router')) {
-				routerData = await search();
+				routerData = await search() || [];
+				if (routerData <= 0) {
+					next('/login');
+					return;
+				}
 				let menuList = changeRouterToMenu(routerData); // 转为菜单
 				getRouterList(routerData); // 转为注册路由
 				newRoutes[0].children = routerList;
@@ -49,7 +58,7 @@ router.beforeEach(async(to, from, next) => {
 			// 从localStorage拿到路由
 			else {
 				routerData = getObjArr('router') //拿到路由
-				let menuList = changeRouterToMenu(routerData); // 转为菜单
+				let menuList = changeRouterToMenu(routerData) || []; // 转为菜单
 				global.menuList = menuList //将路由数据传递给全局变量，做侧边栏菜单渲染工作
 				getRouterList(routerData); // 转为注册路由
 				newRoutes[0].children = routerList;
@@ -61,7 +70,6 @@ router.beforeEach(async(to, from, next) => {
 		else {
 			next()
 		}
-
 	}
 })
 
@@ -78,8 +86,8 @@ const changeRouterToMenu = (data) => {
 		let newData = {};
 		newData.cnName = list.cnName;
 		newData.path = list.url;
-		newData.level= list.level,
-		newData.seq = list.seq + ''
+		newData.level= list.level;
+		newData.id = list.id + '';
 		newData.childList = list.childList  ? changeRouterToMenu(list.childList) : [];    //如果还有子集，就再次调用自己
 		item.push(newData);
 	});
@@ -115,10 +123,11 @@ let temp = [];
 async function search() {
 	try {
 		let res = await userToMenu({bizLineId: 1});
-		let routerData = res.data;
+		let routerData = res.data || [];
 		return routerData
 	}
 	catch (e) {
+
 	}
 }
 export default router

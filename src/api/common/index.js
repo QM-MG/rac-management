@@ -13,6 +13,5 @@ export function loginAxios(param) {
     return axiosIns.post(url.LOGINAXIOS, param); 
 }
 export function logout(param) {
-    console.log(11, url.LOGOUT)
     return axiosIns.post(url.LOGOUT, param); 
 }

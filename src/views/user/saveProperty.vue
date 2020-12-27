@@ -15,6 +15,15 @@
             prop="text"
             label="扩展属性值">
         </el-table-column>
+        <el-table-column
+            prop="text"
+            label="操作">
+            <template slot-scope="scope">
+                <el-button @click="del(scope.row)" class="el-button el-button--danger is-circle el-button--mini" type="button">
+                    <i class="el-icon-delete"></i>
+                </el-button>
+            </template>
+        </el-table-column>
         </el-table>
         <el-dialog
             :title="titleDialog"
@@ -71,7 +80,8 @@ import {
 } from '@/api/dictionary/index';
 import{
     userToPropertyList,
-    userToPropertySave
+    userToPropertySave,
+    propertyToDel
 } from '@/api/user/index';
 import{
     propertyToEntity,
@@ -182,6 +192,7 @@ export default {
             }
         },
         showDialog() {
+            this.addParam = {};
             this.dialogVisible = true;
             this.count++;
         },
@@ -208,6 +219,30 @@ export default {
             catch (e) {
                 this.$message({
                     message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 删除
+        async del(row) {
+            console.log(row)
+            let param = {
+                bizLineId: this.bizLineId,
+                bizDataId: this.currRow.id,
+                extPropertyId: row.extPropertyId,
+                value: row.value
+            }
+            try {
+                let res = await propertyToDel(param);
+                this.$message({
+                    message: '删除成功！',
+                    type: 'success'
+                })
+                this.findPropertyList();
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '删除失败！',
                     type: 'error'
                 })
             }

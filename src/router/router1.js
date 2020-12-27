@@ -111,11 +111,11 @@ const router = new Router({
             title: '策略管理'
           }
         },
-        // {
-        //   path: '*',
-        //   name: 'notFound',
-        //   component: notFound
-        // },
+        {
+          path: '*',
+          name: 'notFound',
+          component: notFound
+        },
       ]
     },
   ]

@@ -45,3 +45,7 @@ export function userToPropertySave(param) {
 export function userToMenu(param) {
     return axiosIns.post(url.USER_LIST_MENU, param); 
 }
+// 用户删除属性
+export function propertyToDel(param) {
+    return axiosIns.post(url.ROPERTY_TO_DEL, param); 
+}

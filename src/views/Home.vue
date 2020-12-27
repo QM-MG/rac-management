@@ -3,7 +3,7 @@
 		<div class="aside left" :style="{width:toggleMenuShow? '64px': '250px'}">
 			<left-menu :toggleMenuShow="toggleMenuShow"></left-menu>
 		</div>
-		<div class="aside main" :style="{marginLeft:toggleMenuShow?'64px': '250px'}">
+		<div class="aside main" :style="{marginLeft:toggleMenuShow?'64px': '250px'}" :class="[$route.path === '/'? 'img-bg': 'bg']">
 			<top :toggleMenuShow="toggleMenuShow" @toggleMenu="toggleMenu"></top>
 			<div class="main-container">
 				<router-view></router-view>
@@ -58,6 +58,13 @@ export default {
 		.main-container {
 			padding: 10px;
 		}
+	}
+	.img-bg {
+		background-image: url('../assets/img/bg.jpeg');
+		background-size: cover;
+	}
+	.bg {
+		background-color: #fff;
 	}
 }
 </style>

@@ -72,7 +72,10 @@ export default {
         },
         // 查询已绑定的菜单
         async save() {
-            let menuIds = this.$refs.tree.getCheckedKeys();
+            // let halfKeys = this.$refs.tree.getHalfCheckedKeys();
+            // let checkedKeys = this.$refs.tree.getCheckedKeys();
+            let menuIds = this.$refs.tree.getCheckedKeys(true);
+            console.log(menuIds)
             this.addParam.menuIds = menuIds;
             this.addParam.bizLineId = this.bizLineId;
             this.addParam.roleId = this.currRow.id;
