@@ -1,17 +1,27 @@
 <template>
     <div class="login-container">
-        <el-form ref="form" method="post" :model="param" label-width="80px" class="login-form">
+        <form method="post" action="/rac/login" label-width="70px" class="el-form login-form" style="background-color: black;">
             <p class="login-title">rac权限管理系统</p>
-            <el-form-item label="用户名">
-                <el-input v-model="param.userName"></el-input>
-            </el-form-item>
-            <el-form-item label="密码">
-                <el-input v-model="param.password" type="password"></el-input>
-            </el-form-item>
-            <el-form-item>
-                <el-button type="primary" @click="onSubmit" class="login-btn">登录</el-button>
-            </el-form-item>
-        </el-form>
+            <div class="el-form-item">
+                <label class="el-form-item__label" style="width:70px;color:white;">用户名：</label>
+                <div class="el-form-item__content">
+                    <div class="el-input" style="display:inline;width:315px;">
+                    <input type="text" class="el-input__inner" id="userName" name="userName" style="display:inline;width:305px;"
+                    placeholder="请输入用户名">
+                    </div>
+                </div>
+            </div>
+            <div class="el-form-item">
+                <label class="el-form-item__label" style="width:70px;color:white;">密码：</label>
+                <div class="el-form-item__content">
+                    <div class="el-input" style="display:inline;width:315px;">
+                        <input type="password" class="el-input__inner" id="password" name="password" style="display:inline;width:305px;"
+                            placeholder="请输入密码">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="el-button login-btn el-button--primary" style="margin-left:70px">登录</button>
+        </form>
     </div>
 </template>
 
@@ -63,6 +73,7 @@ export default {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
+    color: white;
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
@@ -71,6 +82,7 @@ export default {
     align-items: center;
     height: 100%;
     background-size: cover;
+    background-image: url('../assets/img/login-bg.jpeg');
     .login {
         &-form {
             border-radius: 6px;
