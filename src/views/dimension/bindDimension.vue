@@ -418,7 +418,7 @@ export default {
         // 删除节点
         async remove(node, data) {
             try {
-                let res = await treeDel({id: data.id});
+                let res = await treeDel({id: data.id, bizLineId: data.bizLineId, dimensionId: data.dimensionId});
                 this.renderTree();
             }
             catch (e) {

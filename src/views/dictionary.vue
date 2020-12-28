@@ -327,7 +327,7 @@ export default {
         // 删除节点
         async remove(node, data) {
             try {
-                let res = await treeDel({id: data.id});
+                let res = await treeDel({id: data.id, bizLineId: data.bizLineId, dictionaryId: data.dictionaryId});
                 this.renderTree();
             }
             catch (e) {
@@ -463,7 +463,8 @@ export default {
         },
         async del(row) {
             let param = {
-                id: row.id
+                id: row.id,
+                bizLineId: row.bizLineId
             }
             try {
                 let res = await del(param);

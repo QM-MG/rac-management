@@ -101,7 +101,8 @@ export default {
         },
         async del(row) {
             let param = {
-                id: row.id
+                id: row.id,
+                bizLineId: row.bizLineId
             }
             try {
                 let res = await del(param);
