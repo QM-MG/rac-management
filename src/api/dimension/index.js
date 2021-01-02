@@ -38,3 +38,16 @@ export function unbindNode(param) {
 export function findNode(param) {
     return axiosIns.post(url.DIMENSION_SEARCH_NODE, param); 
 }
+export function findDimensionTreeByName(param) {
+    return axiosIns.post(url.DIMENSION_SEARCH_BYNAME, param); 
+}
+
+export function findPropertyList(param) {
+    return axiosIns.post(url.DIMENSION_PORPERTY_LIST, param); 
+}
+export function propertySave(param) {
+    return axiosIns.post(url.DIMENSION_PORPERTY_SAVE, param); 
+}
+export function propertyDel(param) {
+    return axiosIns.post(url.DIMENSION_PORPERTY_DEL, param); 
+}

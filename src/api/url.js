@@ -58,6 +58,13 @@ export const DICTIONARY_ADD = './dictionary/create';
 export const DICTIONARY_EDIT = './dictionary/edit';
 export const DICTIONARY_DEL = './dictionary/delete';
 export const DICTIONARY_LIST_ALL = './dictionary/listByBizLineId';
+export const DICTIONARY_PORPERTY_LIST = './dictionary/node/listExtProperty';
+export const DICTIONARY_PORPERTY_SAVE = './dictionary/node/addExtProperty';
+export const DICTIONARY_PORPERTY_DEL = './dictionary/node/dropExtProperty';
+export const DICTIONARY_TREE_LIST = './dictionary/node/listByParentId';
+export const DICTIONARY_TREE_CREATE = './dictionary/node/create';
+export const DICTIONARY_TREE_EDIT = './dictionary/node/edit';
+export const DICTIONARY_TREE_DEL = './dictionary/node/delete';
 
 export const PROPERTY_LIST = './property/listPage';
 export const ROPERTY_ADD = './property/create';
@@ -84,11 +91,10 @@ export const DIMENSION_TREE_DEL = './dimension/node/delete';
 export const DIMENSION_BIND_NODE = './dimension/node/bindObjectNode';
 export const DIMENSION_UNBIND_NODE = './dimension/node/unbindObjectNode';
 export const DIMENSION_SEARCH_NODE = './dimension/node/queryObjectNode';
-
-export const DICTIONARY_TREE_LIST = './dictionary/node/listByParentId';
-export const DICTIONARY_TREE_CREATE = './dictionary/node/create';
-export const DICTIONARY_TREE_EDIT = './dictionary/node/edit';
-export const DICTIONARY_TREE_DEL = './dictionary/node/delete';
+export const DIMENSION_SEARCH_BYNAME = './dimension/queryByEnName';
+export const DIMENSION_PORPERTY_LIST = './dimension/node/listExtProperty';
+export const DIMENSION_PORPERTY_SAVE = './dimension/node/addExtProperty';
+export const DIMENSION_PORPERTY_DEL = './dimension/node/dropExtProperty';
 
 export const STRATEGY_LIST = './strategy/listPage';
 export const STRATEGY_CREATE = './strategy/create';

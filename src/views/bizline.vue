@@ -71,7 +71,7 @@
             :visible.sync="dialogVisible"
             custom-class="add-dialog"
             width="60%">
-            <el-form ref="form" :model="addParam" label-width="80px">
+            <el-form ref="form" :model="addParam" label-width="120px">
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
@@ -86,8 +86,23 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
+                        <el-form-item label="是否分级管控">
+                            <template>
+                                <el-radio v-model="addParam.decentralizedControl" :label="0">是</el-radio>
+                                <el-radio v-model="addParam.decentralizedControl" :label="1">否</el-radio>
+                            </template>
+                        </el-form-item>
+                    </el-col>
+                     <el-col :span="12">
                         <el-form-item label="备注">
                             <el-input v-model="addParam.remark" size="mini"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12" v-if="addParam.decentralizedControl == 0">
+                        <el-form-item label="维度英文名">
+                            <el-input v-model="addParam.dimensionEnName" size="mini"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -111,7 +126,9 @@ export default {
             param: {
                 searchVal: ''
             },
-            addParam: {},
+            addParam: {
+                decentralizedControl: 0
+            },
             dialogVisible: false,
             totalCount: 0,
             pageNo: 1,
@@ -143,7 +160,9 @@ export default {
             if (status === 'add') {
                 this.status = 'add';
                 this.titleDialog = '新增业务线';
-                this.addParam = {};
+                this.addParam = {
+                    decentralizedControl: 0
+                };
             }
             else {
                 this.status = 'edit';

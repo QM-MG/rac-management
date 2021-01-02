@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import login from '../views/login.vue'
-import home from '../views/home123.vue'
+import home from '../views/home.vue'
 import {userToMenu} from '@/api/user/index';
 const _import = require('./_import_' + process.env.NODE_ENV) //获取组件的方法
 Vue.use(Router)

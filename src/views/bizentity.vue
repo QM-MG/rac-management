@@ -122,7 +122,7 @@ export default {
             param: {
                 searchVal: ''
             },
-            titleDialog: '新增业务管理',
+            titleDialog: '新增实体',
             bizLineList: [],
             addParam: {},
             dialogVisible: false,
@@ -172,7 +172,7 @@ export default {
         showDialog(status, row) {
             if (status === 'add') {
                 this.status = 'add';
-                this.titleDialog = '新增业务管理';
+                this.titleDialog = '新增实体';
                 this.addParam = {};
                 if (this.bizLineList.length > 0) {
                     this.addParam.bizLineId = this.param.bizLineId;
@@ -181,7 +181,7 @@ export default {
             else {
                 this.status = 'edit';
                 this.addParam = row;
-                this.titleDialog = '编辑业务管理';
+                this.titleDialog = '编辑实体';
             }
             this.dialogVisible = true;
         },

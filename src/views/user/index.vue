@@ -2,7 +2,7 @@
     <div class="user">
         <div class="user-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="changeLine">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -164,8 +164,20 @@
                                 inactive-text="禁用">
                             </el-switch>
                         </el-form-item>
-
                     </el-col>
+                </el-row>
+                <el-row>
+                    <!-- <el-col :span="12" v-if="dimensionId">
+                        <el-form-item label="维度树">
+                            <el-cascader
+                                v-model="parentIdList"
+                                :props="funcProps"
+                                size="mini"
+                                ref="cascader"
+                                clearable>
+                            </el-cascader>
+                        </el-form-item>
+                    </el-col> -->
                 </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -186,9 +198,11 @@ import {
 } from '@/api/user/index';
 import {searchBizLine} from '@/api/bizline/index';
 import bindUserTab from './bindUserTab.vue';
+import {findDimensionTreeByName, findTreeList} from '@/api/dimension/index';
 
 export default {
     data() {
+        let me = this;
         return {
             tableData: [],
             param: {
@@ -208,6 +222,25 @@ export default {
             pageSize: 20,
             titleDialog: '用户新增',
             count: 0,
+            canChooseDimension: false,
+            dimensionId: null,
+            parentIdList: [],
+            funcProps: {
+                value: 'id',
+                label: 'cnName',
+                checkStrictly: true,
+                lazy: true,
+                async lazyLoad (node, resolve) {
+                    if (node.level === 0) {
+                        let list = await me.findFuncTree(this.dimensionId, -1);
+                        return resolve(list);
+                    }
+                    else{
+                        let list = await me.findFuncTree(this.dimensionId, node.value);
+                        return resolve(list);
+                    }
+                }
+            },
         };
     },
     components: {pagination, bindUserTab},
@@ -238,7 +271,10 @@ export default {
                 this.bizLineList = res.data || [];
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
+                    this.canChooseDimension = this.bizLineList[0].decentralizedControl === 0 ? true: false;
+                    this.enName = this.bizLineList[0].dimensionEnName;
                     this.search();
+                    this.findDimensionId();
                 }
             }
             catch (e) {
@@ -247,6 +283,60 @@ export default {
                     type: 'error'
                 })
             }
+        },
+        changeLine(val) {
+            for(let i = 0; i < this.bizLineList.length; i++) {
+                if (this.bizLineList[i].id ===  val) {
+                    let decentralizedControl = this.bizLineList[i].decentralizedControl;
+                    this.canChooseDimension = decentralizedControl === 0 ? true: false;
+                    this.enName = this.bizLineList[i].dimensionEnName;
+                }
+            }
+            this.findDimensionId();
+            this.getCanChooseVal();
+            this.search();
+        },
+        // 查维度
+        async findDimensionId() {
+            try {
+                let param = {
+                    bizLineId: this.param.bizLineId,
+                    enName: this.enName
+                }
+                let res = await findDimensionTreeByName(param);
+                let data = res.data || {};
+                this.dimensionId = data.id;
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 查维度节点树
+        async findFuncTree(dimensionId, parentId) {
+            let param = {
+                bizLineId: this.param.bizLineId,
+                dimensionId: this.dimensionId,
+                parentId
+            }
+            try {
+                let res = await findTreeList(param);
+                let treeList = res.data || [];
+                console.log(treeList)
+                return treeList
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 判断是否可以选择维度
+        getCanChooseVal() {
+
         },
         showDialog(status, row) {
             if (status === 'add') {

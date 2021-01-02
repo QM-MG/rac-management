@@ -73,7 +73,16 @@
                 ref="bindDimension"
                 :bizLineId="param.bizLineId"
                 :currRow="currRow"
-                :bizLineList="bizLineList"></bind-dimension>
+                :bizLineList="bizLineList"
+                @getDimNode="getDimNode"></bind-dimension>
+                <div style="margin-top:40px;">
+                    <save-property
+                        v-if="currRow && currRow.useExtProperty === 0"
+                        :bizLineId="param.bizLineId"
+                        :currRow="currRow"
+                        :dimNode="dimNode">
+                    </save-property>
+                </div>
             </el-col>
         </el-row>
         <el-dialog
@@ -81,7 +90,7 @@
             :visible.sync="dialogVisible"
             custom-class="add-dialog"
             width="60%">
-            <el-form ref="form" :model="addParam" label-width="100px">
+            <el-form ref="form" :model="addParam" label-width="130px">
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
@@ -120,6 +129,16 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="是否需要扩展属性">
+                            <template>
+                                <el-radio v-model="addParam.useExtProperty" :label="0">是</el-radio>
+                                <el-radio v-model="addParam.useExtProperty" :label="1">否</el-radio>
+                            </template>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false" size="mini">取 消</el-button>
@@ -131,6 +150,7 @@
 <script>
 import bindDimension from './bindDimension';
 import pagination from '@/components/pagination';
+import saveProperty from './saveProperty';
 import {
     searchData,
     edit,
@@ -153,11 +173,14 @@ export default {
             },
             titleDialog: '新增维度管理',
             bizLineList: [],
-            addParam: {},
+            addParam: {
+                useExtProperty: 1
+            },
             dictionaryList: [],
             dialogVisible: false,
             totalCount: 0,
             status: 'add',
+            dimNode: {},
             currRow: {},
             pageNo: 1,
             pageSize: 20,
@@ -166,7 +189,7 @@ export default {
     mounted() {
         this.searchBizLineList();
     },
-    components: {pagination,bindDimension},
+    components: {pagination,bindDimension,saveProperty},
     methods: {
         async search() {
             this.param.pageNo = this.pageNo;
@@ -221,7 +244,9 @@ export default {
             if (status === 'add') {
                 this.status = 'add';
                 this.titleDialog = '新增维度管理';
-                this.addParam = {};
+                this.addParam = {
+                    useExtProperty: 1
+                };
                 if (this.bizLineList.length > 0) {
                     this.addParam.bizLineId = this.param.bizLineId;
                 }
@@ -302,6 +327,9 @@ export default {
         // 刷新key值，重新渲染tree
         renderTree() {
             this.treeKey = +new Date();
+        },
+        getDimNode(val) {
+            this.dimNode = val;
         },
         reset() {
             this.pageSize = 20;

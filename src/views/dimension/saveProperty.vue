@@ -45,12 +45,11 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="扩展属性值" v-if="activeData && activeData.type==1">
+                        <el-form-item label="扩展属性值" v-if="activeData && activeData.type==1 && activeData.dictionaryId">
                             <el-cascader
-                                v-if="activeData.dictionaryId"
                                 :key="count"
                                 v-model="parentIdList"
-                                :props="funcProps"
+                                :props="propertyProps"
                                 size="mini"
                                 clearable>
                             </el-cascader>
@@ -73,10 +72,10 @@ import {
     findDictionaryTreeList,
 } from '@/api/dictionary/index';
 import{
-    userToPropertyList,
-    userToPropertySave,
-    propertyToDel
-} from '@/api/user/index';
+    findPropertyList,
+    propertySave,
+    propertyDel
+} from '@/api/dimension/index';
 import{
     propertyToEntity,
 } from '@/api/property/index';
@@ -96,18 +95,18 @@ export default {
             treeKey: '',
             count: 0,
             parentIdList: [],
-            funcProps: {
+            propertyProps: {
                 value: 'value',
                 label: 'cnName',
                 checkStrictly: true,
                 lazy: true,
                 async lazyLoad (node, resolve) {
                     if (node.level === 0) {
-                        let list = await me.findFuncTree(-1);
+                        let list = await me.findDictionaryTree(-1);
                         return resolve(list);
                     }
                     else{
-                        let list = await me.findFuncTree(node.value);
+                        let list = await me.findDictionaryTree(node.value);
                         return resolve(list);
                     }
                 }
@@ -124,19 +123,30 @@ export default {
             default: () => {
                 return {};
             }
+        },
+        dimNode: {
+            type: Object,
+            default: () => {
+                return {};
+            }
         }
     },
     mounted() {
+        if (this.currRow) {
+            this.findPropertyToDic();
+            this.findPropertyList();
+        }
     },
     watch: {
         bizLineId(val) {
             this.tableData = [];
-            if (val) {
-            }
         },
         currRow(val) {
+            this.tableData = [];
+        },
+        dimNode(val) {
             if (val) {
-                this.findPropertyToUser();
+                this.findPropertyToDic();
                 this.findPropertyList();
             }
         },
@@ -151,10 +161,10 @@ export default {
         async findPropertyList() {
             let param = {
                 bizLineId: this.bizLineId,
-                userId: this.currRow.id
+                id: this.dimNode.id
             }
             try {
-                let res = await userToPropertyList(param);
+                let res = await findPropertyList(param);
                 this.tableData = res.data || [];
             }
             catch (e) {
@@ -165,13 +175,13 @@ export default {
             }
         },
         // 查关联的用户的属性
-        async findPropertyToUser() {
+        async findPropertyToDic() {
             if (!this.currRow && !this.currRow.id) {
                 return;
             }
             let param = {
                 bizLineId: this.bizLineId,
-                bizEntityEnName: 'user',
+                bizEntityEnName: 'Dimension-' + this.currRow.enName,
             }
             try {
                 let res = await propertyToEntity(param);
@@ -185,6 +195,13 @@ export default {
             }
         },
         showDialog() {
+            if (!this.dimNode.id) {
+                this.$message({
+                    message: '请选择维度节点',
+                    type: 'warning'
+                })
+                return;
+            }
             this.addParam = {};
             this.dialogVisible = true;
             this.activeData = {};
@@ -201,8 +218,8 @@ export default {
                 }
             })
         },
-        // 维度节点树
-        async findFuncTree(parentId) {
+        // 扩展属性树 （查字典值）
+        async findDictionaryTree(parentId) {
             let param = {
                 bizLineId: this.bizLineId,
                 dictionaryId: this.activeData.dictionaryId,
@@ -222,15 +239,8 @@ export default {
         },
         // 删除
         async del(row) {
-            console.log(row)
-            let param = {
-                bizLineId: this.bizLineId,
-                bizDataId: this.currRow.id,
-                extPropertyId: row.extPropertyId,
-                value: row.value
-            }
             try {
-                let res = await propertyToDel(param);
+                let res = await propertyDel(row);
                 this.$message({
                     message: '删除成功！',
                     type: 'success'
@@ -253,9 +263,9 @@ export default {
                 return;
             }
             this.addParam.bizLineId = this.bizLineId;
-            this.addParam.bizDataId = this.currRow.id;
+            this.addParam.bizDataId = this.dimNode.id;
             try {
-                let res = await userToPropertySave(this.addParam);
+                let res = await propertySave(this.addParam);
                 this.$message({
                     message: '保存成功！',
                     type: 'success'

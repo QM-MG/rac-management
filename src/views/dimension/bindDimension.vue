@@ -289,6 +289,7 @@ export default {
         nodeCheck(node) {
             if (node) {
                 this.currNode = node;
+                this.$emit('getDimNode', this.currNode);
                 this.searchNode();
             }
         },

@@ -24,7 +24,7 @@
             </el-button>
         </div>
         <el-row class="content-wrap">
-            <el-col :span="16" class="content-border">
+            <el-col :span="14" class="content-border">
                 <div class="content-title">
                     <span>字典列表</span>
                 </div>
@@ -32,6 +32,11 @@
                     :data="tableData"
                     @row-click="rowClick"
                     style="width: 100%">
+                    <el-table-column
+                        prop="id"
+                        label="ID"
+                        >
+                    </el-table-column>
                     <el-table-column
                         prop="enName"
                         label="英文名"
@@ -47,6 +52,7 @@
                         label="更新时间">
                     </el-table-column>
                     <el-table-column
+                        width="100"
                         label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showDialog('edit', scope.row)" class="el-button el-button--primary is-circle  el-button--mini" type="button">
@@ -66,42 +72,23 @@
                     >
                 </pagination>
             </el-col>
-            <el-col :span="7" :offset="1" class="content-border">
-                <div class="content-title">
-                    <span>定义字典枚举</span>
-                    <el-button type="primary" class="btn-right" @click="showTreeDialog('add')" size="mini">
-                        <i class="el-icon-plus"></i>
-                        <span>新增</span>
-                    </el-button>
+            <el-col :span="9" :offset="1" class="content-border">
+                <define
+                    ref="define"
+                    :bizLineId="param.bizLineId"
+                    :bizLineList="bizLineList"
+                    :currRow="currRow"
+                    @search="search"
+                    @getDicNode="getDicNode"
+                    ></define>
+                <div style="margin-top:40px;">
+                    <save-property
+                        v-if="currRow && currRow.useExtProperty === 0"
+                        :bizLineId="param.bizLineId"
+                        :currRow="currRow"
+                        :dicNode="dicNode">
+                    </save-property>
                 </div>
-                <el-tree
-                    v-if="this.param.bizLineId && currRow && currRow.id"
-                    :props="props"
-                    :key = "treeKey"
-                    :load="loadNode"
-                    class="tree"
-                    icon-class="el-icon-caret-right tree-node-icon"
-                    lazy
-                    ref="tree"
-                    @node-click="nodeCheck">
-                    <span class="custom-tree-node" slot-scope="{ node, data }">
-                        <span>{{ node.label }}</span>
-                        <span style="margin-left: 10px;">
-                        <el-button
-                            type="text"
-                            size="mini"
-                            @click="() => treeEdit(node, data)">
-                            <i class="el-icon-edit"></i>
-                        </el-button>
-                        <el-button
-                            type="text"
-                            size="mini"
-                            @click="() => remove(node, data)">
-                            <i class="el-icon-delete tree-del-icon"></i>
-                        </el-button>
-                        </span>
-                    </span>
-                </el-tree>
             </el-col>
         </el-row>
         <el-dialog
@@ -109,7 +96,7 @@
             :visible.sync="dialogVisible"
             custom-class="add-dialog"
             width="60%">
-            <el-form ref="form" :model="addParam" label-width="80px">
+            <el-form ref="form" :model="addParam" label-width="130px">
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
@@ -135,72 +122,19 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="是否需要扩展属性">
+                            <template>
+                                <el-radio v-model="addParam.useExtProperty" :label="0">是</el-radio>
+                                <el-radio v-model="addParam.useExtProperty" :label="1">否</el-radio>
+                            </template>
+                        </el-form-item>
+                    </el-col>
                 </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false" size="mini">取 消</el-button>
                 <el-button type="primary" @click="save" size="mini">确 定</el-button>
-            </span>
-        </el-dialog>
-        <el-dialog
-            :title="titleDialog"
-            :visible.sync="dialogTreeVisible"
-            custom-class="add-dialog"
-            width="60%">
-            <el-form ref="form" :model="addTreeParam" label-width="100px">
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="英文名">
-                            <el-input v-model="addTreeParam.enName" size="mini" :disabled="status=='edit'"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="中文名">
-                            <el-input v-model="addTreeParam.cnName" size="mini"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="业务线">
-                            <el-select v-model="addTreeParam.bizLineId" size="mini" placeholder="请选择" disabled>
-                                <el-option
-                                v-for="item in bizLineList"
-                                :key="item.id"
-                                :label="item.cnName"
-                                :value="item.id">
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="字典值">
-                            <el-input v-model="addTreeParam.value" size="mini" :disabled="status=='edit'"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="父节点">
-                            <el-cascader
-                                :key="count"
-                                v-model="parentIdList"
-                                :props="funcProps"
-                                size="mini"
-                                clearable>
-                            </el-cascader>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="备注">
-                            <el-input v-model="addTreeParam.remark" size="mini" :disabled="status=='edit'"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogTreeVisible = false" size="mini">取 消</el-button>
-                <el-button type="primary" @click="treeSave" size="mini">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -218,73 +152,39 @@ import {
     treeDel
 } from '@/api/dictionary/index';
 import {searchBizLine} from '@/api/bizline/index';
-import {isEmptyObj} from '@/utils/index.js';
+import define from './define.vue';
+import saveProperty from './saveProperty';
 
 export default {
     data() {
-        let me = this;
         return {
             tableData: [],
+            bizLineList: [],
             param: {
+                bizLineId: '',
                 searchVal: ''
             },
-            props: {
-                label: 'cnName',
-                children: 'children'
-            },
-            parentIdList: [],
             titleDialog: '新增字典',
-            bizLineList: [],
-            addParam: {},
-            addTreeParam: {
-                parentId: -1,
+            addParam: {
+                useExtProperty: 1
             },
+            dicNode: {},
             dictionaryList: [],
             dialogVisible: false,
-            dialogTreeVisible: false,
-            funcProps: {
-                value: 'id',
-                label: 'cnName',
-                checkStrictly: true,
-                lazy: true,
-                async lazyLoad (node, resolve) {
-                    if (node.level === 0) {
-                        let list = await me.findFuncTree(-1);
-                        return resolve(list);
-                    }
-                    else{
-                        let list = await me.findFuncTree(node.value);
-                        return resolve(list);
-                    }
-                }
-            },
             totalCount: 0,
             status: 'add',
             currRow: null,
             pageNo: 1,
             pageSize: 20,
-            treeKey: '',
-            count: 0
         };
     },
     mounted() {
         this.searchbizLineList();
     },
     watch: {
-        parentIdList(val) {
-            if (val.length > 0) {
-                this.addTreeParam.parentId = val[val.length - 1];
-                if (this.addTreeParam.parentId !== -1) {
-                    this.lineDisabled = true;
-                }
-                else {
-                    this.lineDisabled = false;
-                }
-            }
-        }
     },
-    components: {pagination},
-    methods: {
+    components: {pagination, define, saveProperty},
+    methods : {
         async search() {
             this.param.pageNo = this.pageNo;
             this.param.pageSize = this.pageSize;
@@ -296,7 +196,7 @@ export default {
                 if (this.tableData.length > 0  && !this.currRow) {
                     this.currRow = this.tableData[0];
                 }
-                this.renderTree();
+                this.$refs.define.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -321,14 +221,11 @@ export default {
                 })
             }
         },
-        async treeEdit(node, data) {
-            this.showTreeDialog('edit', data);
-        },
         // 删除节点
         async remove(node, data) {
             try {
                 let res = await treeDel({id: data.id, bizLineId: data.bizLineId, dictionaryId: data.dictionaryId});
-                this.renderTree();
+                this.refs.define.renderTree();
             }
             catch (e) {
                 this.$message({
@@ -337,25 +234,13 @@ export default {
                 })
             }
         },
-        // 刷新key值，重新渲染tree
-        renderTree() {
-            this.treeKey = +new Date();
-        },
-        async loadNode(node, resolve) {
-            if (node.level === 0) {
-                let list = await this.findFuncTree(-1);
-                return resolve(list);
-            }
-            else{
-                let list = await this.findFuncTree(node.data.id);
-                return resolve(list);
-            }
-        },
         showDialog(status, row) {
             if (status === 'add') {
                 this.status = 'add';
                 this.titleDialog = '新增字典';
-                this.addParam = {};
+                this.addParam = {
+                    useExtProperty: 1
+                };
                 if (this.bizLineList.length > 0) {
                     this.addParam.bizLineId = this.param.bizLineId;
                 }
@@ -367,31 +252,6 @@ export default {
             }
             this.dialogVisible = true;
         },
-        showTreeDialog(status, row) {
-            this.count++;
-            if (isEmptyObj(this.currRow)) {
-                this.$message({
-                    message: '请选择一项字典',
-                    type: 'error'
-                })
-                return;
-            }
-            if (status === 'add') {
-                this.treeStatus = 'add';
-                this.titleDialog = '新增字典节点';
-                this.addTreeParam = {
-                    parentId: -1
-                };
-                this.addTreeParam.bizLineId = this.param.bizLineId;
-            }
-            else {
-                this.treeStatus = 'edit';
-                this.addTreeParam = row;
-                this.parentIdList = [row.parentId];
-                this.titleDialog = '编辑字典节点';
-            }
-            this.dialogTreeVisible = true;
-        },
         save() {
             if (this.status === 'add') {
                 this.add();
@@ -400,41 +260,6 @@ export default {
                 this.edit();
             }
             
-        },
-        async treeSave() {
-            this.addTreeParam.dictionaryId = this.currRow.id;
-            if (this.treeStatus === 'add') {
-                this.addTree();
-            }
-            else {
-                this.editTree();
-            }
-        },
-        async addTree() {
-            try {
-                let res = await treeAdd(this.addTreeParam);
-                this.dialogTreeVisible = false;
-                this.search();
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '新增失败！',
-                    type: 'error'
-                })
-            }
-        },
-        async editTree() {
-            try {
-                let res = await treeEdit(this.addTreeParam);
-                this.dialogTreeVisible = false;
-                this.search();
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '新增失败！',
-                    type: 'error'
-                })
-            }
         },
         async add() {
             try {
@@ -488,28 +313,9 @@ export default {
                 this.currRow = row;
             }, 0)
         },
-        // 维度节点树
-        async findFuncTree(parentId) {
-            let param = {
-                bizLineId: this.param.bizLineId,
-                dictionaryId: this.currRow.id,
-                parentId
-            }
-            try {
-                let res = await findDictionaryTreeList(param);
-                let treeList = res.data || [];
-                return treeList
-            }
-            catch (e) {
-                this.$message({
-                    message: e || '查询失败！',
-                    type: 'error'
-                })
-            }
-        },
-        // 点击树
-        nodeCheck(node) {
-            this.currNode = node;
+        // 得到字典枚举节点
+        getDicNode(node) {
+            this.dicNode = node;
         },
         reset() {
             this.param = {};

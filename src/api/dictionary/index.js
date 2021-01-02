@@ -29,3 +29,12 @@ export function treeEdit(param) {
 export function treeDel(param) {
     return axiosIns.post(url.DICTIONARY_TREE_DEL, param); 
 }
+export function findPropertyList(param) {
+    return axiosIns.post(url.DICTIONARY_PORPERTY_LIST, param); 
+}
+export function propertySave(param) {
+    return axiosIns.post(url.DICTIONARY_PORPERTY_SAVE, param); 
+}
+export function propertyDel(param) {
+    return axiosIns.post(url.DICTIONARY_PORPERTY_DEL, param); 
+}
