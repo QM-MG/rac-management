@@ -38,3 +38,6 @@ export function propertySave(param) {
 export function propertyDel(param) {
     return axiosIns.post(url.DICTIONARY_PORPERTY_DEL, param); 
 }
+export function findDictionaryTreeByName(param) {
+    return axiosIns.post(url.DICTIONARY_SEARCH_BYNAME, param); 
+}

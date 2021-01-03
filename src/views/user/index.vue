@@ -100,7 +100,7 @@
             :visible.sync="dialogVisible"
             custom-class="add-dialog"
             width="60%">
-            <el-form ref="form" :model="addParam" label-width="80px">
+            <el-form ref="form" :model="addParam" label-width="100px">
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="英文名">
@@ -167,8 +167,8 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <!-- <el-col :span="12" v-if="dimensionId">
-                        <el-form-item label="维度树">
+                    <el-col :span="12" v-if="dictionaryId">
+                        <el-form-item label="分级管控ID">
                             <el-cascader
                                 v-model="parentIdList"
                                 :props="funcProps"
@@ -177,7 +177,7 @@
                                 clearable>
                             </el-cascader>
                         </el-form-item>
-                    </el-col> -->
+                    </el-col>
                 </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -198,7 +198,7 @@ import {
 } from '@/api/user/index';
 import {searchBizLine} from '@/api/bizline/index';
 import bindUserTab from './bindUserTab.vue';
-import {findDimensionTreeByName, findTreeList} from '@/api/dimension/index';
+import {findDictionaryTreeByName, findDictionaryTreeList} from '@/api/dictionary/index';
 
 export default {
     data() {
@@ -223,7 +223,7 @@ export default {
             titleDialog: '用户新增',
             count: 0,
             canChooseDimension: false,
-            dimensionId: null,
+            dictionaryId: null,
             parentIdList: [],
             funcProps: {
                 value: 'id',
@@ -232,11 +232,11 @@ export default {
                 lazy: true,
                 async lazyLoad (node, resolve) {
                     if (node.level === 0) {
-                        let list = await me.findFuncTree(this.dimensionId, -1);
+                        let list = await me.findFuncTree(this.dictionaryId, -1);
                         return resolve(list);
                     }
                     else{
-                        let list = await me.findFuncTree(this.dimensionId, node.value);
+                        let list = await me.findFuncTree(this.dictionaryId, node.value);
                         return resolve(list);
                     }
                 }
@@ -246,6 +246,13 @@ export default {
     components: {pagination, bindUserTab},
     mounted() {
         this.searchbizLineList();
+    },
+    watch: {
+        parentIdList(val) {
+            if (val.length > 0) {
+                this.addParam.decentralizedControlId = val[val.length - 1];
+            }
+        }
     },
     methods: {
         async search() {
@@ -272,9 +279,9 @@ export default {
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
                     this.canChooseDimension = this.bizLineList[0].decentralizedControl === 0 ? true: false;
-                    this.enName = this.bizLineList[0].dimensionEnName;
+                    this.enName = this.bizLineList[0].decentralizedControlEnName;
                     this.search();
-                    this.findDimensionId();
+                    this.findDictionaryId();
                 }
             }
             catch (e) {
@@ -285,27 +292,30 @@ export default {
             }
         },
         changeLine(val) {
+            console.log(val)
             for(let i = 0; i < this.bizLineList.length; i++) {
                 if (this.bizLineList[i].id ===  val) {
                     let decentralizedControl = this.bizLineList[i].decentralizedControl;
                     this.canChooseDimension = decentralizedControl === 0 ? true: false;
-                    this.enName = this.bizLineList[i].dimensionEnName;
+                    this.enName = this.bizLineList[i].decentralizedControlEnName;
                 }
             }
-            this.findDimensionId();
-            this.getCanChooseVal();
+            this.findDictionaryId();
             this.search();
         },
-        // 查维度
-        async findDimensionId() {
+        // 查字典
+        async findDictionaryId() {
+            if (!this.enName) {
+                return;
+            }
             try {
                 let param = {
                     bizLineId: this.param.bizLineId,
                     enName: this.enName
                 }
-                let res = await findDimensionTreeByName(param);
+                let res = await findDictionaryTreeByName(param);
                 let data = res.data || {};
-                this.dimensionId = data.id;
+                this.dictionaryId = data.id;
             }
             catch (e) {
                 this.$message({
@@ -314,17 +324,16 @@ export default {
                 })
             }
         },
-        // 查维度节点树
-        async findFuncTree(dimensionId, parentId) {
+        // 查字典节点树
+        async findFuncTree(dictionaryId, parentId) {
             let param = {
                 bizLineId: this.param.bizLineId,
-                dimensionId: this.dimensionId,
+                dictionaryId: this.dictionaryId,
                 parentId
             }
             try {
-                let res = await findTreeList(param);
+                let res = await findDictionaryTreeList(param);
                 let treeList = res.data || [];
-                console.log(treeList)
                 return treeList
             }
             catch (e) {
@@ -334,10 +343,6 @@ export default {
                 })
             }
         },
-        // 判断是否可以选择维度
-        getCanChooseVal() {
-
-        },
         showDialog(status, row) {
             if (status === 'add') {
                 this.status = 'add';
@@ -345,6 +350,7 @@ export default {
                     status: 0,
                     gender: 0
                 };
+                this.parentIdList = [];
                 this.titleDialog = '用户新增';
                 if (this.bizLineList.length > 0) {
                     this.addParam.bizLineId = this.param.bizLineId

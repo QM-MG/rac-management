@@ -101,8 +101,8 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12" v-if="addParam.decentralizedControl == 0">
-                        <el-form-item label="维度英文名">
-                            <el-input v-model="addParam.dimensionEnName" size="mini"></el-input>
+                        <el-form-item label="分级管控英文名">
+                            <el-input v-model="addParam.decentralizedControlEnName" size="mini"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>

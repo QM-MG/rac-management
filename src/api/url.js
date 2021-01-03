@@ -65,6 +65,8 @@ export const DICTIONARY_TREE_LIST = './dictionary/node/listByParentId';
 export const DICTIONARY_TREE_CREATE = './dictionary/node/create';
 export const DICTIONARY_TREE_EDIT = './dictionary/node/edit';
 export const DICTIONARY_TREE_DEL = './dictionary/node/delete';
+export const DICTIONARY_SEARCH_BYNAME = './dictionary/queryByEnName';
+
 
 export const PROPERTY_LIST = './property/listPage';
 export const ROPERTY_ADD = './property/create';

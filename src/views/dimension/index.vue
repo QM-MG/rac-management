@@ -2,7 +2,7 @@
     <div class="dimension">
         <div class="dimension-search">
             <el-input v-model="param.searchVal" placeholder="请输入内容" size="mini"></el-input>
-            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="search">
+            <el-select v-model="param.bizLineId" placeholder="请选择" size="mini" @change="changeLine">
                 <el-option
                 v-for="item in bizLineList"
                 :key="item.id"
@@ -73,6 +73,7 @@
                 ref="bindDimension"
                 :bizLineId="param.bizLineId"
                 :currRow="currRow"
+                :dictionaryId="dictionaryId"
                 :bizLineList="bizLineList"
                 @getDimNode="getDimNode"></bind-dimension>
                 <div style="margin-top:40px;">
@@ -162,7 +163,8 @@ import {
     treeDel
     } from '@/api/dimension/index';
 import {searchBizLine} from '@/api/bizline/index';
-import {searchDictionaryAll} from '@/api/dictionary/index';
+import {searchDictionaryAll,findDictionaryTreeByName} from '@/api/dictionary/index';
+
 
 export default {
     data() {
@@ -176,6 +178,7 @@ export default {
             addParam: {
                 useExtProperty: 1
             },
+            dictionaryId: null,
             dictionaryList: [],
             dialogVisible: false,
             totalCount: 0,
@@ -218,8 +221,41 @@ export default {
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
                     this.search();
+                    this.findDictionaryId();
                     this.searchDictionaryAll();
                 }
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        changeLine(val) {
+            for(let i = 0; i < this.bizLineList.length; i++) {
+                if (this.bizLineList[i].id ===  val) {
+                    let decentralizedControl = this.bizLineList[i].decentralizedControl;
+                    this.canChooseDimension = decentralizedControl === 0 ? true: false;
+                    this.enName = this.bizLineList[i].decentralizedControlEnName;
+                }
+            }
+            this.findDictionaryId();
+            this.search();
+        },
+        // 查字典
+        async findDictionaryId() {
+            if (!this.enName) {
+                return;
+            }
+            try {
+                let param = {
+                    bizLineId: this.param.bizLineId,
+                    enName: this.enName
+                }
+                let res = await findDictionaryTreeByName(param);
+                let data = res.data || {};
+                this.dictionaryId = data.id;
             }
             catch (e) {
                 this.$message({

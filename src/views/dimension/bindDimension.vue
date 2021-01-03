@@ -114,6 +114,21 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
+                <el-row>
+                    <el-col :span="12" v-if="dictionaryId">
+                        <el-form-item label="分级管控ID">
+                            <el-cascader
+                                v-model="dimparentIdList"
+                                :props="dimProps"
+                                size="mini"
+                                ref="cascader"
+                                clearable>
+                            </el-cascader>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                    </el-col>
+                </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogTreeVisible = false" size="mini">取 消</el-button>
@@ -185,6 +200,7 @@ export default {
             treeStatus: 'add',
             count: 0,
             parentIdList: [],
+            dimparentIdList: [],
             objIdList: [],
             parentOwnIdList: [],
             dimensionObj: {}, // 客体维度节点
@@ -220,6 +236,22 @@ export default {
                     }
                 }
             },
+            dimProps: {
+                value: 'id',
+                label: 'cnName',
+                checkStrictly: true,
+                lazy: true,
+                async lazyLoad (node, resolve) {
+                    if (node.level === 0) {
+                        let list = await me.findControlTreeList(this.dictionaryId, -1);
+                        return resolve(list);
+                    }
+                    else{
+                        let list = await me.findControlTreeList(this.dictionaryId, node.value);
+                        return resolve(list);
+                    }
+                }
+            },
         };
     },
     props: {
@@ -238,6 +270,10 @@ export default {
             default: () => {
                 return [];
             }
+        },
+        dictionaryId: {
+            type: String | Number,
+            default: ''
         }
     },
     watch: {
@@ -280,6 +316,11 @@ export default {
             else {
                 this.objectNodeId = -1;
             }
+        },
+        dimparentIdList(val) {
+            if (val.length > 0) {
+                this.addTreeParam.decentralizedControlId = val[val.length - 1];
+            }
         }
     },
     mounted() {
@@ -297,6 +338,7 @@ export default {
         showTreeDialog(status, row) {
             this.count++;
             this.parentOwnIdList = [];
+            this.dimparentIdList = [];
             this.parentIdList = [];
             if (status === 'add') {
                 this.treeStatus = 'add';
@@ -314,6 +356,7 @@ export default {
                 this.treeStatus = 'edit';
                 this.addTreeParam = row;
                 this.parentIdList = [row.type];
+                this.dimparentIdList = [row.decentralizedControlId];
                 this.parentOwnIdList = [row.parentId]
                 this.titleDialog = '编辑维度节点';
             }
@@ -328,13 +371,33 @@ export default {
                 })
                 return;
             }
+            this.dimparentIdList = [];
             this.dialogObjVisible = true;
         },
-        // 维度节点树
+        // 维度节点树(查字典)
         async findDictionaryTreeList(parentId) {
             let param = {
                 bizLineId: this.bizLineId,
                 dictionaryId: this.currRow.nodeTypeId,
+                parentId
+            }
+            try {
+                let res = await findDictionaryTreeList(param);
+                let treeList = res.data || [];
+                return treeList
+            }
+            catch (e) {
+                this.$message({
+                    message: e || '查询失败！',
+                    type: 'error'
+                })
+            }
+        },
+        // 管控节点树
+        async findControlTreeList(dictionaryId, parentId) {
+            let param = {
+                bizLineId: this.bizLineId,
+                dictionaryId: this.dictionaryId,
                 parentId
             }
             try {
