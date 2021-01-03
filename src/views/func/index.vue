@@ -65,6 +65,9 @@ export default {
             dialogVisible: false,
             treeList: [],
             tableConfig:[{
+                label:'ID',
+                props:'id',
+            }, {
                 label:'英文名',
                 props:'enName',//当前表头对应的来自父组件数据源的字段
             }, {

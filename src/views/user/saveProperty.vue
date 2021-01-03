@@ -8,6 +8,11 @@
         :data="tableData"
         style="width: 100%">
         <el-table-column
+            width="60"
+            prop="id"
+            label="ID">
+        </el-table-column>
+        <el-table-column
             prop="extPropertyName"
             label="扩展属性名称">
         </el-table-column>

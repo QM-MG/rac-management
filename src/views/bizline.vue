@@ -24,6 +24,11 @@
                     :data="tableData"
                     style="width: 100%">
                     <el-table-column
+                        prop="id"
+                        label="ID"
+                        width="60">
+                    </el-table-column>
+                    <el-table-column
                         prop="enName"
                         label="英文名"
                         width="180">

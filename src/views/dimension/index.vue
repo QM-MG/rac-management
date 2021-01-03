@@ -34,6 +34,11 @@
                     highlight-current-row
                     style="width: 100%">
                     <el-table-column
+                        width="60"
+                        prop="id"
+                        label="ID">
+                    </el-table-column>
+                    <el-table-column
                         prop="enName"
                         label="英文名"
                         >
