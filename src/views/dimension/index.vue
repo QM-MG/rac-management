@@ -225,6 +225,8 @@ export default {
                 this.bizLineList = res.data || [];
                 if (this.bizLineList.length > 0) {
                     this.param.bizLineId = this.bizLineList[0].id;
+                    this.canChooseDimension = this.bizLineList[0].decentralizedControl === 0 ? true: false;
+                    this.enName = this.bizLineList[0].decentralizedControlEnName;
                     this.search();
                     this.findDictionaryId();
                     this.searchDictionaryAll();
