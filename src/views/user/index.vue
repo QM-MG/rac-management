@@ -175,10 +175,12 @@
                     <el-col :span="12" v-if="dictionaryId">
                         <el-form-item label="分级管控ID">
                             <el-cascader
+                                :options="treeList"
                                 v-model="parentIdList"
                                 :props="funcProps"
                                 size="mini"
                                 ref="cascader"
+                                @change="cascaderChange"
                                 clearable>
                             </el-cascader>
                         </el-form-item>
@@ -203,7 +205,7 @@ import {
 } from '@/api/user/index';
 import {searchBizLine} from '@/api/bizline/index';
 import bindUserTab from './bindUserTab.vue';
-import {findDictionaryTreeByName, findDictionaryTreeList} from '@/api/dictionary/index';
+import {findDictionaryTreeByName,findDictionaryAllTree} from '@/api/dictionary/index';
 
 export default {
     data() {
@@ -233,19 +235,10 @@ export default {
             funcProps: {
                 value: 'id',
                 label: 'cnName',
-                checkStrictly: true,
-                lazy: true,
-                async lazyLoad (node, resolve) {
-                    if (node.level === 0) {
-                        let list = await me.findFuncTree(this.dictionaryId, -1);
-                        return resolve(list);
-                    }
-                    else{
-                        let list = await me.findFuncTree(this.dictionaryId, node.value);
-                        return resolve(list);
-                    }
-                }
+                children: 'childList',
+                checkStrictly: true
             },
+            treeList: []
         };
     },
     components: {pagination, bindUserTab},
@@ -253,11 +246,6 @@ export default {
         this.searchbizLineList();
     },
     watch: {
-        parentIdList(val) {
-            if (val.length > 0) {
-                this.addParam.decentralizedControlId = val[val.length - 1];
-            }
-        }
     },
     methods: {
         async search() {
@@ -297,7 +285,6 @@ export default {
             }
         },
         changeLine(val) {
-            console.log(val)
             for(let i = 0; i < this.bizLineList.length; i++) {
                 if (this.bizLineList[i].id ===  val) {
                     let decentralizedControl = this.bizLineList[i].decentralizedControl;
@@ -321,6 +308,7 @@ export default {
                 let res = await findDictionaryTreeByName(param);
                 let data = res.data || {};
                 this.dictionaryId = data.id;
+                this.findAllTree();
             }
             catch (e) {
                 this.$message({
@@ -330,22 +318,29 @@ export default {
             }
         },
         // 查字典节点树
-        async findFuncTree(dictionaryId, parentId) {
+        async findAllTree(dictionaryId) {
             let param = {
                 bizLineId: this.param.bizLineId,
-                dictionaryId: this.dictionaryId,
-                parentId
+                dictionaryId: this.dictionaryId
             }
             try {
-                let res = await findDictionaryTreeList(param);
-                let treeList = res.data || [];
-                return treeList
+                let res = await findDictionaryAllTree(param);
+                this.treeList = res.data || [];
+                console.log(this.treeList)
             }
             catch (e) {
                 this.$message({
                     message: e || '查询失败！',
                     type: 'error'
                 })
+            }
+        },
+        cascaderChange(list) {
+            if(list.length > 0) {
+                this.addParam.decentralizedControlId = list[list.length - 1];
+            }
+            else {
+                this.addParam.decentralizedControlId = -1;
             }
         },
         showDialog(status, row) {

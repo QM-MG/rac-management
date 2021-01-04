@@ -41,3 +41,6 @@ export function propertyDel(param) {
 export function findDictionaryTreeByName(param) {
     return axiosIns.post(url.DICTIONARY_SEARCH_BYNAME, param); 
 }
+export function findDictionaryAllTree(param) {
+    return axiosIns.post(url.DICTIONARY_ALL_TREE, param); 
+}

@@ -118,10 +118,12 @@
                     <el-col :span="12" v-if="dictionaryId">
                         <el-form-item label="分级管控ID">
                             <el-cascader
+                                :options="treeList"
                                 v-model="dimparentIdList"
                                 :props="dimProps"
                                 size="mini"
                                 ref="cascader"
+                                @change="cascaderChange"
                                 clearable>
                             </el-cascader>
                         </el-form-item>
@@ -165,7 +167,7 @@
     </div>
 </template>
 <script>
-import {findDictionaryTreeList} from '@/api/dictionary/index';
+import {findDictionaryTreeList,findDictionaryAllTree} from '@/api/dictionary/index';
 import {
     searchData,
     edit,
@@ -239,19 +241,10 @@ export default {
             dimProps: {
                 value: 'id',
                 label: 'cnName',
-                checkStrictly: true,
-                lazy: true,
-                async lazyLoad (node, resolve) {
-                    if (node.level === 0) {
-                        let list = await me.findControlTreeList(this.dictionaryId, -1);
-                        return resolve(list);
-                    }
-                    else{
-                        let list = await me.findControlTreeList(this.dictionaryId, node.value);
-                        return resolve(list);
-                    }
-                }
+                children: 'childList',
+                checkStrictly: true
             },
+            treeList: []
         };
     },
     props: {
@@ -317,10 +310,8 @@ export default {
                 this.objectNodeId = -1;
             }
         },
-        dimparentIdList(val) {
-            if (val.length > 0) {
-                this.addTreeParam.decentralizedControlId = val[val.length - 1];
-            }
+        dictionaryId(val) {
+            this.findAllTree();
         }
     },
     mounted() {
@@ -394,22 +385,28 @@ export default {
             }
         },
         // 管控节点树
-        async findControlTreeList(dictionaryId, parentId) {
+        async findAllTree() {
             let param = {
                 bizLineId: this.bizLineId,
                 dictionaryId: this.dictionaryId,
-                parentId
             }
             try {
-                let res = await findDictionaryTreeList(param);
-                let treeList = res.data || [];
-                return treeList
+                let res = await findDictionaryAllTree(param);
+                this.treeList = res.data || [];
             }
             catch (e) {
                 this.$message({
                     message: e || '查询失败！',
                     type: 'error'
                 })
+            }
+        },
+        cascaderChange(list) {
+            if(list.length > 0) {
+                this.addTreeParam.decentralizedControlId = list[list.length - 1];
+            }
+            else {
+                this.addTreeParam.decentralizedControlId = -1;
             }
         },
         async loadNode(node, resolve) {
