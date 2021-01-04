@@ -140,7 +140,7 @@ export default {
         },
         editRow(val) {
             this.addParam = val;
-            this.parentIdList = val.pathIds || [];
+            this.parentIdList = val.parentId || [];
         }
     },
     methods: {
