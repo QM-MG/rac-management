@@ -479,7 +479,7 @@ export default {
         // 删除节点
         async remove(node, data) {
             try {
-                let res = await treeDel({id: data.id, bizLineId: data.bizLineId, dimensionId: data.dimensionId});
+                let res = await treeDel({id: data.id, bizLineId: data.bizLineId, dimensionId: data.dimensionId, decentralizedControlId: data.decentralizedControlId});
                 this.renderTree();
             }
             catch (e) {
@@ -514,6 +514,7 @@ export default {
                 bizLineId: this.bizLineId,
                 dimensionId: this.currRow.id,
                 id: this.currNode.id,
+                decentralizedControlId: this.currNode.decentralizedControlId,
                 objectNodeId: this.objectNodeId
             }
             try {
@@ -536,6 +537,7 @@ export default {
                     bizLineId: this.bizLineId,
                     dimensionId: this.currRow.id,
                     id: this.currNode.id,
+                    decentralizedControlId: this.currNode.decentralizedControlId,
                     objectNodeId: this.dimensionObj.id
                 }
                 let res = await unbindNode(param);

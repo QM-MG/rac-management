@@ -109,6 +109,7 @@ export default {
             let param = {
                 bizLineId: this.bizLineId,
                 userId: this.currRow.id,
+                decentralizedControlId: this.currRow.decentralizedControlId,
                 roleIds
             }
             try {
