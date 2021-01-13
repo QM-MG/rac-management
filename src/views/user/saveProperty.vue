@@ -259,6 +259,7 @@ export default {
             }
             this.addParam.bizLineId = this.bizLineId;
             this.addParam.bizDataId = this.currRow.id;
+            this.addParam.decentralizedControlId = this.currRow.decentralizedControlId;
             try {
                 let res = await userToPropertySave(this.addParam);
                 this.$message({
