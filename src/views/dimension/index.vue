@@ -1,3 +1,4 @@
+
 <template>
     <div class="dimension">
         <div class="dimension-search">
@@ -199,6 +200,7 @@ export default {
     },
     components: {pagination,bindDimension,saveProperty},
     methods: {
+        // 查询
         async search() {
             this.param.pageNo = this.pageNo;
             this.param.pageSize = this.pageSize;
